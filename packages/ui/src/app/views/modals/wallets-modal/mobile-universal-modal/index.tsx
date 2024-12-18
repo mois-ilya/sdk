@@ -1,12 +1,14 @@
 import { ConnectAdditionalRequest, isWalletInfoRemote, WalletInfo } from '@tonconnect/sdk';
 import { Component, createMemo, createSignal, For, Show } from 'solid-js';
-import { AtWalletIcon, Button, FourWalletsItem, QRIcon, WalletItem } from 'src/app/components';
+import { AtWalletIcon, FourWalletsItem, QRIcon, WalletItem } from 'src/app/components';
 import {
     H1Styled,
     H2Styled,
     StyledLeftActionButton,
-    TelegramButtonStyled,
-    TGImageStyled
+    PrimaryButtonStyled,
+    TGImageStyled,
+    AllWalletsButton,
+    PrimaryButtonIconPlaceholder
 } from './style';
 import { setLastSelectedWalletInfo } from 'src/app/state/modals-state';
 import { appState } from 'src/app/state/app.state';
@@ -188,9 +190,13 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         Use Wallet in Telegram or choose other application Connect
                     </H2Styled>
                 </Show>
-                <TelegramButtonStyled
+                <PrimaryButtonStyled
                     leftIcon={
-                        isTelegramPrimaryWallet() ? <AtWalletIcon /> : <div style="width: 24px" />
+                        isTelegramPrimaryWallet() ? (
+                            <AtWalletIcon />
+                        ) : (
+                            <PrimaryButtonIconPlaceholder />
+                        )
                     }
                     rightIcon={<TGImageStyled src={primaryWallet()?.imageUrl ?? IMG.TG} />}
                     onClick={onSelectPrimaryWallet}
@@ -209,15 +215,13 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                             Connect Wallet in Telegram
                         </Translation>
                     </Show>
-                </TelegramButtonStyled>
+                </PrimaryButtonStyled>
                 <Show when={!isTelegramPrimaryWallet()}>
-                    <div style="padding-bottom: 24px; display: flex; justify-content: center;">
-                        <Button appearance="flat" onClick={() => props.onSelectAllWallets()}>
-                            <Translation translationKey="walletModal.mobileUniversalModal.allWallets">
-                                All Wallets
-                            </Translation>
-                        </Button>
-                    </div>
+                    <AllWalletsButton appearance="flat" onClick={() => props.onSelectAllWallets()}>
+                        <Translation translationKey="walletModal.mobileUniversalModal.allWallets">
+                            All Wallets
+                        </Translation>
+                    </AllWalletsButton>
                 </Show>
                 <Show when={isTelegramPrimaryWallet()}>
                     <H2Styled
