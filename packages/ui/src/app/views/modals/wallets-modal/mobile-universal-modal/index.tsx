@@ -30,7 +30,7 @@ interface MobileUniversalModalProps {
 
     onSelectAllWallets: () => void;
 
-    primaryWalletId?: string;
+    primaryWalletAppName?: string;
 }
 
 export const MobileUniversalModal: Component<MobileUniversalModalProps> = props => {
@@ -40,18 +40,15 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
     const connector = appState.connector;
 
     const primaryWallet = createMemo(() => {
-        const primaryWalletId = props.primaryWalletId ?? AT_WALLET_APP_NAME;
-        return props.walletsList.find(wallet => wallet.appName === primaryWalletId);
+        const primaryWalletAppName = props.primaryWalletAppName ?? AT_WALLET_APP_NAME;
+        return props.walletsList.find(wallet => wallet.appName === primaryWalletAppName);
     });
-    const primaryWalletValue = primaryWallet();
-
-    const [showSecondaryWallets, setShowSecondaryWallets] = createSignal(
-        primaryWalletValue === undefined
-    );
 
     const walletsList = (): WalletInfo[] =>
         props.walletsList.filter(
-            w => supportsMobile(w) && w.appName !== (props.primaryWalletId ?? AT_WALLET_APP_NAME)
+            w =>
+                supportsMobile(w) &&
+                w.appName !== (props.primaryWalletAppName ?? AT_WALLET_APP_NAME)
         );
 
     const shouldShowMoreButton = (): boolean => walletsList().length > 7;
@@ -105,12 +102,10 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
     const onPrimaryWallet = (): void => {
         setUniversalLink(null);
 
-        // const atWallet = props.walletsList.find(wallet => wallet.appName === AT_WALLET_APP_NAME);
+        const primaryWalletValue = primaryWallet();
         if (!primaryWalletValue || !isWalletInfoRemote(primaryWalletValue)) {
             throw new TonConnectUIError('Selected wallet not found in the wallets list');
         }
-
-        console.log('primaryWalletValue', primaryWalletValue);
 
         const walletLink = connector.connect(
             {
@@ -119,6 +114,11 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
             },
             props.additionalRequest
         );
+
+        if (primaryWalletValue.appName !== AT_WALLET_APP_NAME) {
+            onSelectUniversal();
+            return;
+        }
 
         const forceRedirect = !firstClick();
         setFirstClick(false);
@@ -203,10 +203,12 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         </Translation>
                     </Show>
                 </TelegramButtonStyled>
-                <Show when={primaryWallet() && !showSecondaryWallets()}>
-                    <div style="padding-bottom: 16px; display: flex; justify-content: center;">
-                        <Button appearance="flat" onClick={() => setShowSecondaryWallets(true)}>
-                            Other Options
+                <Show when={primaryWallet()}>
+                    <div style="padding-bottom: 24px; display: flex; justify-content: center;">
+                        <Button appearance="flat" onClick={() => props.onSelectAllWallets()}>
+                            <Translation translationKey="walletModal.mobileUniversalModal.allWallets">
+                                All Wallets
+                            </Translation>
                         </Button>
                     </div>
                 </Show>
@@ -220,7 +222,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         Choose other application
                     </H2Styled>
                 </Show>
-                <Show when={showSecondaryWallets()}>
+                <Show when={primaryWallet() === undefined}>
                     <WalletUlContainer>
                         <For
                             each={

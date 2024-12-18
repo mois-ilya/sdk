@@ -49,7 +49,7 @@
       "openWalletOnTelegram": "Connect Wallet in Telegram",
       "openWallet": "Open {{ name }}",
       "chooseOtherApplication": "Choose other application",
-      "chooseOtherWallet": "Other Options",
+      "allWallets": "All Wallets",
       "openLink": "Open Link",
       "scan": "Scan with your mobile wallet"
     },

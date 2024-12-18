@@ -23,9 +23,9 @@ export class WalletsListManager {
     private readonly walletsListSource: string =
         'https://raw.githubusercontent.com/ton-blockchain/wallets-list/main/wallets-v2.json';
     
-    private readonly primaryWalletId: string | undefined;
+    private readonly primaryWalletAppName: string | undefined;
 
-    constructor(options?: { walletsListSource?: string; cacheTTLMs?: number, primaryWalletId?: string }) {
+    constructor(options?: { walletsListSource?: string; cacheTTLMs?: number, primaryWalletAppName?: string }) {
         if (options?.walletsListSource) {
             this.walletsListSource = options.walletsListSource;
         }
@@ -34,7 +34,7 @@ export class WalletsListManager {
             this.cacheTTLMs = options.cacheTTLMs;
         }
 
-        this.primaryWalletId = options?.primaryWalletId
+        this.primaryWalletAppName = options?.primaryWalletAppName
     }
 
     public async getWallets(): Promise<WalletInfo[]> {
@@ -105,7 +105,7 @@ export class WalletsListManager {
             walletsList = FALLBACK_WALLETS_LIST;
         }
 
-        walletsList = walletsList.sort(wallet =>  wallet.app_name === this.primaryWalletId ? -1 : 1);
+        walletsList = walletsList.sort(wallet =>  wallet.app_name === this.primaryWalletAppName ? -1 : 1);
 
         let currentlyInjectedWallets: WalletInfoCurrentlyInjected[] = [];
         try {

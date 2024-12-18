@@ -49,7 +49,7 @@
       "openWalletOnTelegram": "Открыть Wallet в Telegram",
       "openWallet": "Открыть {{ name }}",
       "chooseOtherApplication": "Выберите другое приложение",
-      "chooseOtherWallet": "Другие варианты",
+      "allWallets": "Все кошельки",
       "openLink": "Открыть",
       "scan": "Отсканируйте камерой вашего телефона"
     },

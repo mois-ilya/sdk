@@ -68,7 +68,7 @@ export class TonConnectUI {
 
     private readonly walletsList: Promise<WalletInfo[]>;
 
-    public readonly primaryWalletId?: string;
+    public readonly primaryWalletAppName?: string;
 
     private connectRequestParametersCallback?: (
         parameters: ConnectAdditionalRequest | undefined
@@ -236,7 +236,7 @@ export class TonConnectUI {
 
         this.walletsList = this.getWallets();
 
-        this.primaryWalletId = options.primaryWalletId;
+        this.primaryWalletAppName = options.primaryWalletAppName;
 
         this.walletsList.then(list => preloadImages(uniq(list.map(item => item.imageUrl))));
 

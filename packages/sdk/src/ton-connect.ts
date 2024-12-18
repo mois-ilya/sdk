@@ -127,7 +127,7 @@ export class TonConnect implements ITonConnect {
         this.walletsList = new WalletsListManager({
             walletsListSource: options?.walletsListSource,
             cacheTTLMs: options?.walletsListCacheTTLMs,
-            primaryWalletId: options?.primaryWalletId
+            primaryWalletAppName: options?.primaryWalletAppName
         });
 
         this.tracker = new TonConnectTracker({

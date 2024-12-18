@@ -27,7 +27,7 @@ export interface TonConnectOptions {
      * The wallet matching this value by `app_name` will be shown as the primary option, 
      * while other wallets will still be accessible in a dropdown or secondary menu.
      */
-    primaryWalletId?: string;
+    primaryWalletAppName?: string;
 
     /**
      * Redefine wallets list source URL. Must be a link to a json file with [following structure]{@link https://github.com/ton-connect/wallets-list}

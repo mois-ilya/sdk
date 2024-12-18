@@ -25,7 +25,7 @@ interface DesktopUniversalModalProps {
 
     onSelectAllWallets: () => void;
 
-    primaryWalletId?: string;
+    primaryWalletAppName?: string;
 }
 
 export const DesktopUniversalModal: Component<DesktopUniversalModalProps> = props => {
@@ -39,7 +39,7 @@ export const DesktopUniversalModal: Component<DesktopUniversalModalProps> = prop
     setLastSelectedWalletInfo({ openMethod: 'qrcode' });
 
     const primaryWallet = createMemo(() =>
-        props.walletsList.find(wallet => wallet.appName === props.primaryWalletId)
+        props.walletsList.find(wallet => wallet.appName === props.primaryWalletAppName)
     );
 
     const request = createMemo(() => {
@@ -62,7 +62,7 @@ export const DesktopUniversalModal: Component<DesktopUniversalModalProps> = prop
 
     const previewFourWalletImages = createMemo(() =>
         props.walletsList
-            .filter(wallet => wallet.appName !== props.primaryWalletId)
+            .filter(wallet => wallet.appName !== props.primaryWalletAppName)
             .slice(0, 4)
             .map(i => i.imageUrl)
     );
