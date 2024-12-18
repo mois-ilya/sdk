@@ -105,7 +105,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
         );
     };
 
-    const onPrimaryWallet = (): void => {
+    const onSelectPrimaryWallet = (): void => {
         setUniversalLink(null);
 
         const primaryWalletValue = primaryWallet();
@@ -193,7 +193,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         isTelegramPrimaryWallet() ? <AtWalletIcon /> : <div style="width: 24px" />
                     }
                     rightIcon={<TGImageStyled src={primaryWallet()?.imageUrl ?? IMG.TG} />}
-                    onClick={onPrimaryWallet}
+                    onClick={onSelectPrimaryWallet}
                     scale="s"
                 >
                     <Show when={!isTelegramPrimaryWallet()}>
