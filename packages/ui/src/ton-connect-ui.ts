@@ -264,7 +264,8 @@ export class TonConnectUI {
         const preferredWalletName = this.preferredWalletStorage.getPreferredWalletAppName();
         setAppState({
             connector: this.connector,
-            preferredWalletAppName: preferredWalletName
+            preferredWalletAppName: preferredWalletName,
+            primaryWalletAppName: this.primaryWalletAppName
         });
 
         widgetController.renderApp(rootId, this);

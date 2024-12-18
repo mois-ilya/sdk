@@ -39,6 +39,12 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
     const [universalLink, setUniversalLink] = createSignal<string | null>(null);
     const connector = appState.connector;
 
+    const isTelegramPrimaryWallet = createMemo(
+        () =>
+            props.primaryWalletAppName === AT_WALLET_APP_NAME ||
+            props.primaryWalletAppName === undefined
+    );
+
     const primaryWallet = createMemo(() => {
         const primaryWalletAppName = props.primaryWalletAppName ?? AT_WALLET_APP_NAME;
         return props.walletsList.find(wallet => wallet.appName === primaryWalletAppName);
@@ -153,6 +159,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                 <StyledLeftActionButton icon="arrow" onClick={onCloseQR} />
                 <MobileUniversalQR
                     universalLink={getUniversalLink()}
+                    imageUrl={primaryWallet()?.imageUrl ?? IMG.TG}
                     isCopiedShown={isCopiedShown()}
                     onOpenLink={onSelectUniversal}
                     onCopy={onCopy}
@@ -163,7 +170,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                 <H1Styled translationKey="walletModal.mobileUniversalModal.connectYourWallet">
                     Connect your TON wallet
                 </H1Styled>
-                <Show when={primaryWallet()}>
+                <Show when={!isTelegramPrimaryWallet()}>
                     <H2Styled
                         translationKey="walletModal.mobileUniversalModal.openPrimaryWalletOrSelect"
                         translationValues={{ name: primaryWallet()!.name }}
@@ -172,24 +179,24 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         Open {primaryWallet()!.name} or select your wallet to connect
                     </H2Styled>
                 </Show>
-                <Show when={!primaryWallet()}>
+                <Show when={isTelegramPrimaryWallet()}>
                     <H2Styled
-                        translationKey="walletModal.mobileUniversalModal.openPrimaryWalletOrSelect"
+                        translationKey="walletModal.mobileUniversalModal.openWalletOnTelegramOrSelect"
                         translationValues={{ name: primaryWallet()!.name }}
                         maxWidth={320}
                     >
-                        Open {primaryWallet()!.name} or select your wallet to connect
+                        Use Wallet in Telegram or choose other application Connect
                     </H2Styled>
                 </Show>
                 <TelegramButtonStyled
-                    leftIcon={primaryWallet() ? <div style="width: 24px" /> : <AtWalletIcon />}
-                    rightIcon={
-                        <TGImageStyled src={primaryWallet() ? primaryWallet()!.imageUrl : IMG.TG} />
+                    leftIcon={
+                        isTelegramPrimaryWallet() ? <AtWalletIcon /> : <div style="width: 24px" />
                     }
+                    rightIcon={<TGImageStyled src={primaryWallet()?.imageUrl ?? IMG.TG} />}
                     onClick={onPrimaryWallet}
                     scale="s"
                 >
-                    <Show when={primaryWallet()}>
+                    <Show when={!isTelegramPrimaryWallet()}>
                         <Translation
                             translationKey="walletModal.mobileUniversalModal.openWallet"
                             translationValues={{ name: primaryWallet()!.name }}
@@ -197,13 +204,13 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                             Open {primaryWallet()!.name}
                         </Translation>
                     </Show>
-                    <Show when={!primaryWallet()}>
+                    <Show when={isTelegramPrimaryWallet()}>
                         <Translation translationKey="walletModal.mobileUniversalModal.openWalletOnTelegram">
                             Connect Wallet in Telegram
                         </Translation>
                     </Show>
                 </TelegramButtonStyled>
-                <Show when={primaryWallet()}>
+                <Show when={!isTelegramPrimaryWallet()}>
                     <div style="padding-bottom: 24px; display: flex; justify-content: center;">
                         <Button appearance="flat" onClick={() => props.onSelectAllWallets()}>
                             <Translation translationKey="walletModal.mobileUniversalModal.allWallets">
@@ -212,7 +219,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         </Button>
                     </div>
                 </Show>
-                <Show when={!primaryWallet()}>
+                <Show when={isTelegramPrimaryWallet()}>
                     <H2Styled
                         translationKey="walletModal.mobileUniversalModal.chooseOtherApplication"
                         maxWidth={342}
@@ -222,7 +229,7 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                         Choose other application
                     </H2Styled>
                 </Show>
-                <Show when={primaryWallet() === undefined}>
+                <Show when={isTelegramPrimaryWallet()}>
                     <WalletUlContainer>
                         <For
                             each={

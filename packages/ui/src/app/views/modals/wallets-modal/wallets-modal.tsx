@@ -180,6 +180,7 @@ export const WalletsModal: Component = () => {
                                 walletsList={walletsList()!}
                                 additionalRequest={additionalRequest()!}
                                 onSelectAllWallets={onSelectAllWallets}
+                                primaryWalletAppName={appState.primaryWalletAppName}
                             />
                         </Match>
                         <Match when={selectedTab() === 'all-wallets'}>

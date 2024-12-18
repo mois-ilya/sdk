@@ -61,7 +61,7 @@ export interface TonConnectUIProviderPropsBase {
     walletsListConfiguration?: WalletsListConfiguration;
 
     /**
-     * ID of the wallet to display prominently in the wallets list.
+     * App name of the wallet to display prominently in the wallets list.
      */
     primaryWalletAppName?: string;
 
