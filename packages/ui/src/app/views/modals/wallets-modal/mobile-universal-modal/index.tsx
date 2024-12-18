@@ -67,7 +67,19 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
 
     const getUniversalLink = (): string => {
         if (!universalLink()) {
-            setUniversalLink(connector.connect(walletsBridges(), props.additionalRequest));
+            const primaryWalletVal = primaryWallet();
+
+            const externalWallets =
+                primaryWalletVal &&
+                isWalletInfoRemote(primaryWalletVal) &&
+                !isTelegramPrimaryWallet()
+                    ? {
+                          universalLink: primaryWalletVal.universalLink,
+                          bridgeUrl: primaryWalletVal.bridgeUrl
+                      }
+                    : walletsBridges();
+
+            setUniversalLink(connector.connect(externalWallets, props.additionalRequest));
         }
         return universalLink()!;
     };
@@ -161,7 +173,9 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                 <StyledLeftActionButton icon="arrow" onClick={onCloseQR} />
                 <MobileUniversalQR
                     universalLink={getUniversalLink()}
-                    imageUrl={primaryWallet()?.imageUrl ?? IMG.TG}
+                    imageUrl={
+                        isTelegramPrimaryWallet() ? IMG.TON : primaryWallet()?.imageUrl ?? IMG.TON
+                    }
                     isCopiedShown={isCopiedShown()}
                     onOpenLink={onSelectUniversal}
                     onCopy={onCopy}
