@@ -33,6 +33,13 @@ export const QRCodeStyled = styled(QRCode)`
     margin-bottom: 24px;
 `;
 
+export const AllWalletsButton = styled(Button)`
+    padding-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+`;
+
 export const H1Styled = styled(H1)`
     max-width: 288px;
     margin: 0 auto 2px;

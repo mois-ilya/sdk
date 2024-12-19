@@ -212,7 +212,15 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                             <PrimaryButtonIconPlaceholder />
                         )
                     }
-                    rightIcon={<TGImageStyled src={primaryWallet()?.imageUrl ?? IMG.TG} />}
+                    rightIcon={
+                        <TGImageStyled
+                            src={
+                                isTelegramPrimaryWallet()
+                                    ? IMG.TG
+                                    : primaryWallet()?.imageUrl ?? IMG.TG
+                            }
+                        />
+                    }
                     onClick={onSelectPrimaryWallet}
                     scale="s"
                 >

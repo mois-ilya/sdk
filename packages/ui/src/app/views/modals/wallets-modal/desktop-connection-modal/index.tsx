@@ -17,6 +17,7 @@ import {
     useContext
 } from 'solid-js';
 import {
+    AllWalletsButton,
     BodyStyled,
     BodyTextStyled,
     BottomButtonsContainerStyled,
@@ -59,6 +60,7 @@ export interface DesktopConnectionProps {
     additionalRequest?: ConnectAdditionalRequest;
     wallet: WalletInfoRemote | (WalletInfoRemote & WalletInfoInjectable);
     onBackClick: () => void;
+    onAllWalletsClick?: () => void;
     backDisabled?: boolean;
 }
 
@@ -328,6 +330,13 @@ export const DesktopConnectionModal: Component<DesktopConnectionProps> = props =
                         </FooterButton>
                     </Show>
                 </BottomButtonsContainerStyled>
+            </Show>
+            <Show when={props.onAllWalletsClick}>
+                <AllWalletsButton appearance="flat" onClick={() => props.onAllWalletsClick?.()}>
+                    <Translation translationKey="walletModal.desktopConnectionModal.allWallets">
+                        All Wallets
+                    </Translation>
+                </AllWalletsButton>
             </Show>
         </DesktopConnectionModalStyled>
     );
