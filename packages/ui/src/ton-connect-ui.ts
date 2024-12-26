@@ -19,7 +19,7 @@ import { TonConnectUIError } from 'src/errors/ton-connect-ui.error';
 import { TonConnectUiCreateOptions } from 'src/models/ton-connect-ui-create-options';
 import { PreferredWalletStorage, WalletInfoStorage } from 'src/storage';
 import {
-    createMacrotask, createMacrotaskAsync,
+    createMacrotaskAsync,
     getSystemTheme,
     preloadImages,
     subscribeToThemeChange
@@ -164,6 +164,12 @@ export class TonConnectUI {
         setAppState(state => {
             const merged = mergeOptions(
                 {
+                    ...(options.hasOwnProperty('primaryWalletAppName') && {
+                        primaryWalletAppName:
+                            options.primaryWalletAppName === null
+                                ? undefined
+                                : options.primaryWalletAppName
+                    }),
                     ...(options.language && { language: options.language }),
                     ...(!!options.actionsConfiguration?.returnStrategy && {
                         returnStrategy: options.actionsConfiguration.returnStrategy

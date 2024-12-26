@@ -50,7 +50,10 @@ export const AllWalletsButton = styled(Button)`
     padding-bottom: 24px;
     display: flex;
     justify-content: center;
+    font-weight: 400;
+    font-size: 16px;
     margin: 0 auto;
+    color: ${props => props.theme!.colors.text.secondary};
 `;
 
 export const H1Styled = styled(H1)`
@@ -111,4 +114,5 @@ export const StyledLeftActionButton = styled(IconButton)`
 
 export const PrimaryButtonIconPlaceholder = styled.div`
     width: 28px;
+    height: 28px;
 `;

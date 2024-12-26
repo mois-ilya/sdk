@@ -46,8 +46,7 @@ export const WalletsModal: Component = () => {
         if (getWalletsModalIsOpened()) {
             updateIsMobile();
         } else {
-            clearSelectedWalletInfo();
-            setSelectedTab('universal');
+            onSelectUniversal();
             setInfoTab(false);
         }
     });
@@ -57,7 +56,9 @@ export const WalletsModal: Component = () => {
     const [fetchedWalletsList] = createResource(() => tonConnectUI!.getWallets());
 
     const [selectedWalletInfo, setSelectedWalletInfo] = createSignal<WalletInfo | null>(null);
-    const [selectedTab, setSelectedTab] = createSignal<'universal' | 'all-wallets'>('universal');
+    const [selectedTab, setSelectedTab] = createSignal<'universal' | 'connection' | 'all-wallets'>(
+        'universal'
+    );
     const [infoTab, setInfoTab] = createSignal(false);
 
     const walletsList = createMemo<PersonalizedWalletInfo[] | null>(() => {
@@ -100,6 +101,12 @@ export const WalletsModal: Component = () => {
         walletsList()?.find(wallet => wallet.appName === appState.primaryWalletAppName)
     );
 
+    const visibleTab = createMemo(() =>
+        primaryWallet() && selectedTab() === 'universal' && !isMobile()
+            ? 'connection'
+            : selectedTab()
+    );
+
     const additionalRequestLoading = (): boolean =>
         appState.connectRequestParameters?.state === 'loading';
 
@@ -123,8 +130,8 @@ export const WalletsModal: Component = () => {
     });
 
     const onSelectWallet = (walletInfo: WalletInfo): void => {
-        setSelectedTab('universal');
         setSelectedWalletInfo(walletInfo);
+        setSelectedTab('connection');
     };
 
     const onSelectAllWallets = (): void => {
@@ -133,14 +140,11 @@ export const WalletsModal: Component = () => {
 
     const onSelectUniversal = (): void => {
         setSelectedTab('universal');
-    };
-
-    const clearSelectedWalletInfo = (): void => {
         setSelectedWalletInfo(primaryWallet() ?? null);
     };
 
     onCleanup(() => {
-        clearSelectedWalletInfo();
+        onSelectUniversal();
         setInfoTab(false);
     });
 
@@ -170,31 +174,33 @@ export const WalletsModal: Component = () => {
 
                 <Show when={!additionalRequestLoading() && walletsList()}>
                     <Switch>
-                        <Match when={selectedTab() === 'all-wallets'}>
+                        <Match when={visibleTab() === 'all-wallets'}>
                             <AllWalletsListModal
                                 walletsList={walletsList()!}
                                 onBack={onSelectUniversal}
                                 onSelect={onSelectWallet}
                             />
                         </Match>
-                        <Match when={selectedWalletInfo()}>
+                        <Match when={visibleTab() === 'connection'}>
                             <Dynamic
                                 component={
                                     isMobile() ? MobileConnectionModal : DesktopConnectionModal
                                 }
                                 wallet={selectedWalletInfo()! as WalletInfoRemote}
                                 additionalRequest={additionalRequest()}
-                                onBackClick={clearSelectedWalletInfo}
+                                onBackClick={onSelectUniversal}
                                 onAllWalletsClick={primaryWallet() && onSelectAllWallets}
-                                backDisabled={selectedWalletInfo() === primaryWallet()}
+                                backDisabled={
+                                    !isMobile() && selectedWalletInfo() === primaryWallet()
+                                }
                             />
                         </Match>
-                        <Match when={selectedTab() === 'universal'}>
+                        <Match when={visibleTab() === 'universal'}>
                             <Dynamic
                                 component={
                                     isMobile() ? MobileUniversalModal : DesktopUniversalModal
                                 }
-                                onSelect={setSelectedWalletInfo}
+                                onSelect={onSelectWallet}
                                 walletsList={walletsList()!}
                                 additionalRequest={additionalRequest()!}
                                 onSelectAllWallets={onSelectAllWallets}

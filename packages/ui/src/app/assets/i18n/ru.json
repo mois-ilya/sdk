@@ -49,7 +49,7 @@
       "openWalletOnTelegram": "Открыть Wallet в Telegram",
       "openWallet": "Открыть {{ name }}",
       "chooseOtherApplication": "Выберите другое приложение",
-      "allWallets": "Все Кошельки",
+      "chooseOtherWallet": "Выбрать другой Кошелёк",
       "openLink": "Открыть",
       "scan": "Отсканируйте камерой вашего телефона"
     },
@@ -65,7 +65,7 @@
       "connectionDeclined": "Подключение отклонено"
     },
     "desktopConnectionModal": {
-      "allWallets": "Все Кошельки",
+      "chooseOtherWallet": "Выбрать другой Кошелёк",
       "scanQR": "Отсканируйте QR-код ниже камерой в приложении {{ name }}, или камерой телефона",
       "continueInExtension": "Откройте браузерное расширение {{ name }}",
       "dontHaveExtension": "Похоже, у вас не установлено браузерное расширение {{ name }}",

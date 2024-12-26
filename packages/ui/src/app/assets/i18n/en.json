@@ -49,7 +49,7 @@
       "openWalletOnTelegram": "Connect Wallet in Telegram",
       "openWallet": "Open {{ name }}",
       "chooseOtherApplication": "Choose other application",
-      "allWallets": "All Wallets",
+      "chooseOtherWallet": "Choose other Wallet",
       "openLink": "Open Link",
       "scan": "Scan with your mobile wallet"
     },
@@ -65,7 +65,7 @@
       "connectionDeclined": "Connection declined"
     },
     "desktopConnectionModal": {
-      "allWallets": "All Wallets",
+      "chooseOtherWallet": "Choose other Wallet",
       "scanQR": "Scan the QR code below with your phone’s or {{ name }}’s camera",
       "continueInExtension": "Continue in {{ name }} browser extension…",
       "dontHaveExtension": "Seems you don't have installed {{ name }} browser extension",

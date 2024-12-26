@@ -1,6 +1,6 @@
 import { ConnectAdditionalRequest, isWalletInfoRemote, WalletInfo } from '@tonconnect/sdk';
 import { Component, createMemo, createSignal, For, Show } from 'solid-js';
-import { AtWalletIcon, FourWalletsItem, QRIcon, WalletItem } from 'src/app/components';
+import { ArrowIcon, AtWalletIcon, FourWalletsItem, QRIcon, WalletItem } from 'src/app/components';
 import {
     H1Styled,
     H2Styled,
@@ -239,9 +239,13 @@ export const MobileUniversalModal: Component<MobileUniversalModalProps> = props 
                     </Show>
                 </PrimaryButtonStyled>
                 <Show when={!isTelegramPrimaryWallet()}>
-                    <AllWalletsButton appearance="flat" onClick={() => props.onSelectAllWallets()}>
-                        <Translation translationKey="walletModal.mobileUniversalModal.allWallets">
-                            All Wallets
+                    <AllWalletsButton
+                        appearance="flat"
+                        onClick={() => props.onSelectAllWallets()}
+                        rightIcon={<ArrowIcon direction="right" />}
+                    >
+                        <Translation translationKey="walletModal.mobileUniversalModal.chooseOtherWallet">
+                            Choose other Wallet
                         </Translation>
                     </AllWalletsButton>
                 </Show>

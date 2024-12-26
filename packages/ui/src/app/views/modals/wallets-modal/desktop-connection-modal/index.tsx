@@ -35,6 +35,7 @@ import {
 } from './style';
 import { ConnectorContext } from 'src/app/state/connector.context';
 import {
+    ArrowIcon,
     BrowserIcon,
     Button,
     DesktopIcon,
@@ -332,9 +333,13 @@ export const DesktopConnectionModal: Component<DesktopConnectionProps> = props =
                 </BottomButtonsContainerStyled>
             </Show>
             <Show when={props.onAllWalletsClick}>
-                <AllWalletsButton appearance="flat" onClick={() => props.onAllWalletsClick?.()}>
-                    <Translation translationKey="walletModal.desktopConnectionModal.allWallets">
-                        All Wallets
+                <AllWalletsButton
+                    appearance="flat"
+                    onClick={() => props.onAllWalletsClick?.()}
+                    rightIcon={<ArrowIcon direction="right" />}
+                >
+                    <Translation translationKey="walletModal.desktopConnectionModal.chooseOtherWallet">
+                        Choose other Wallet
                     </Translation>
                 </AllWalletsButton>
             </Show>
