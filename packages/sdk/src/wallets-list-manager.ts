@@ -84,6 +84,7 @@ export class WalletsListManager {
             const wrongFormatWallets = walletsList.filter(
                 wallet => !this.isCorrectWalletConfigDTO(wallet)
             );
+
             if (wrongFormatWallets.length) {
                 logError(
                     `Wallet(s) ${wrongFormatWallets
@@ -205,7 +206,7 @@ export class WalletsListManager {
             return false;
         }
 
-        const sseBridge = bridge.find(item => (item as { type: string }).type === 'sse');
+        const sseBridge = bridge.find(item => (item as { type: string }).type === 'sse') as Object;
 
         if (sseBridge) {
             if (
