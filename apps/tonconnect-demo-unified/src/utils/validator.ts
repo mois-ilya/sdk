@@ -47,7 +47,11 @@ export function validateTransactionJson(json: string): ValidationResult {
 export function validateSignDataJson(json: string): ValidationResult {
   try {
     const data = JSON.parse(json)
-    const valid = validateSignData(data)
+
+    // Extract payload from method/params wrapper if present
+    const payload = data.params?.[0] ?? data
+
+    const valid = validateSignData(payload)
 
     return {
       valid: !!valid,

@@ -1,10 +1,27 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react"
 import { toast } from "sonner"
 import { verifySignData } from "@/utils/sign-data-verification"
 import type { VerificationResult } from "@/utils/sign-data-verification"
 
 export type SignDataType = "text" | "binary" | "cell"
+
+export interface SignDataOperationResult {
+  id: string
+  timestamp: number
+  requestSnapshot: string
+  response: string
+  status: 'success' | 'error'
+  errorMessage?: string
+  signatureData?: SignDataResponse
+}
+
+// Default values for each data type
+const DEFAULTS: Record<SignDataType, { data: string; schema?: string }> = {
+  text: { data: "Hello, TON!" },
+  binary: { data: "SGVsbG8sIFRPTiE=" }, // base64 of "Hello, TON!"
+  cell: { data: "te6cckEBAQEAEQAAHgAAAABIZWxsbywgVE9OIb7WCx4=", schema: "message#_ text:string = Message;" },
+}
 
 interface SignDataResponse {
   signature: string
@@ -23,14 +40,25 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
   const [tonConnectUI] = useTonConnectUI()
   const wallet = useTonWallet()
 
-  const [dataType, setDataType] = useState<SignDataType>("text")
-  const [dataText, setDataText] = useState("Hello, TON!")
+  const [dataType, setDataTypeInternal] = useState<SignDataType>("text")
+  const [dataText, setDataText] = useState(DEFAULTS.text.data)
   const [schema, setSchema] = useState("")
 
-  const [requestJson, setRequestJson] = useState("")
-  const [responseJson, setResponseJson] = useState("")
+  // When changing data type, set default values for that type
+  const setDataType = (newType: SignDataType) => {
+    if (newType !== dataType) {
+      setDataTypeInternal(newType)
+      setDataText(DEFAULTS[newType].data)
+      setSchema(DEFAULTS[newType].schema || "")
+    }
+  }
 
-  // For verification
+  const [requestJson, setRequestJson] = useState("")
+
+  // Operation result with snapshot
+  const [lastResult, setLastResult] = useState<SignDataOperationResult | null>(null)
+
+  // For verification (keeping lastResponse for internal use)
   const [lastResponse, setLastResponse] = useState<SignDataResponse | null>(null)
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -49,26 +77,28 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
   }, [dataType, dataText, schema])
 
   // Set form state from JSON (for edit mode)
-  const setFromJson = (json: string) => {
+  const setFromJson = useCallback((json: string) => {
     try {
       const data = JSON.parse(json)
       const payload = data.params?.[0] || data
 
       if (payload.type === "text" && payload.text !== undefined) {
-        setDataType("text")
+        setDataTypeInternal("text")
         setDataText(payload.text)
+        setSchema("")
       } else if (payload.type === "binary" && payload.bytes !== undefined) {
-        setDataType("binary")
+        setDataTypeInternal("binary")
         setDataText(payload.bytes)
+        setSchema("")
       } else if (payload.type === "cell" && payload.cell !== undefined) {
-        setDataType("cell")
+        setDataTypeInternal("cell")
         setDataText(payload.cell)
         if (payload.schema) setSchema(payload.schema)
       }
     } catch {
       // Invalid JSON - ignore
     }
-  }
+  }, [])
 
   const sign = async () => {
     if (!wallet) {
@@ -79,6 +109,10 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
     // Reset previous state
     setLastResponse(null)
     setVerificationResult(null)
+    setServerVerificationResult(null)
+
+    // Freeze request snapshot BEFORE sending
+    const requestSnapshot = requestJson
 
     try {
       let payload: Record<string, string>
@@ -94,13 +128,33 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
 
       const result = await tonConnectUI.signData(payload as Parameters<typeof tonConnectUI.signData>[0])
 
-      setResponseJson(JSON.stringify(result, null, 2))
+      const responseJson = JSON.stringify(result, null, 2)
       setLastResponse(result as unknown as SignDataResponse)
+
+      // Save result with snapshot
+      setLastResult({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        requestSnapshot,
+        response: responseJson,
+        status: 'success',
+        signatureData: result as unknown as SignDataResponse,
+      })
 
       if (showToastSuccess) toast.success("Data signed successfully")
     } catch (error) {
       const message = error instanceof Error ? error.message : "Signing failed"
-      setResponseJson(JSON.stringify({ error: message }, null, 2))
+
+      // Save error result
+      setLastResult({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        requestSnapshot,
+        response: JSON.stringify({ error: message }, null, 2),
+        status: 'error',
+        errorMessage: message,
+      })
+
       if (showToastError) toast.error(message)
     }
   }
@@ -183,15 +237,31 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
     }
   }
 
+  const clearResult = useCallback(() => {
+    setLastResult(null)
+    setLastResponse(null)
+    setVerificationResult(null)
+    setServerVerificationResult(null)
+  }, [])
+
+  const loadResultToForm = useCallback(() => {
+    if (lastResult) {
+      setFromJson(lastResult.requestSnapshot)
+    }
+  }, [lastResult, setFromJson])
+
   return {
     dataType, setDataType,
     dataText, setDataText,
     schema, setSchema,
     requestJson,
-    responseJson,
     sign,
     setFromJson,
     isConnected: !!wallet,
+    // Operation result with snapshot
+    lastResult,
+    clearResult,
+    loadResultToForm,
     // Client verification
     canVerify: !!lastResponse && !!wallet,
     verify,

@@ -2,12 +2,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { FormContainer } from "@/components/shared/FormContainer"
+import { SignDataResultCard } from "@/components/shared/SignDataResultCard"
 import { useSignData } from "@/hooks/useSignData"
 import { useSettingsContext } from "@/context/SettingsContext"
 import { validateSignDataJson } from "@/utils/validator"
-import { CheckCircle, XCircle, Loader2, ShieldCheck, Server } from "lucide-react"
 
 export function SignDataTab() {
   const { notificationsBefore, notificationsSuccess, notificationsError } = useSettingsContext()
@@ -19,6 +18,11 @@ export function SignDataTab() {
     sign,
     setFromJson,
     isConnected,
+    // Result
+    lastResult,
+    clearResult,
+    loadResultToForm,
+    // Verification
     canVerify,
     verify,
     verificationResult,
@@ -32,10 +36,28 @@ export function SignDataTab() {
     <>
       <div className="space-y-2">
         <Label>Data type</Label>
-        <div className="flex gap-2">
-          <Button variant={dataType === "text" ? "default" : "outline"} onClick={() => setDataType("text")} className="flex-1">Text</Button>
-          <Button variant={dataType === "binary" ? "default" : "outline"} onClick={() => setDataType("binary")} className="flex-1">Binary</Button>
-          <Button variant={dataType === "cell" ? "default" : "outline"} onClick={() => setDataType("cell")} className="flex-1">Cell</Button>
+        <div className="flex gap-1 rounded-lg border bg-background p-1">
+          <Button
+            variant={dataType === "text" ? "secondary" : "ghost"}
+            onClick={() => setDataType("text")}
+            className="flex-1 h-8 rounded-md text-sm"
+          >
+            Text
+          </Button>
+          <Button
+            variant={dataType === "binary" ? "secondary" : "ghost"}
+            onClick={() => setDataType("binary")}
+            className="flex-1 h-8 rounded-md text-sm"
+          >
+            Binary
+          </Button>
+          <Button
+            variant={dataType === "cell" ? "secondary" : "ghost"}
+            onClick={() => setDataType("cell")}
+            className="flex-1 h-8 rounded-md text-sm"
+          >
+            Cell
+          </Button>
         </div>
       </div>
 
@@ -61,101 +83,35 @@ export function SignDataTab() {
           rows={4}
         />
       </div>
-
-      {verificationResult && (
-        <Alert variant={verificationResult.valid ? "default" : "destructive"}>
-          {verificationResult.valid ? (
-            <CheckCircle className="h-4 w-4" />
-          ) : (
-            <XCircle className="h-4 w-4" />
-          )}
-          <AlertTitle>
-            Client: {verificationResult.valid ? "Valid Signature" : "Invalid Signature"}
-          </AlertTitle>
-          <AlertDescription>
-            {verificationResult.message}
-            {verificationResult.details && (
-              <div className="mt-2 text-xs space-y-1">
-                <div>Address match: {verificationResult.details.addressMatch ? "Yes" : "No"}</div>
-                <div>Public key match: {verificationResult.details.publicKeyMatch ? "Yes" : "No"}</div>
-                <div>Signature valid: {verificationResult.details.signatureValid ? "Yes" : "No"}</div>
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {serverVerificationResult && (
-        <Alert variant={serverVerificationResult.valid ? "default" : "destructive"}>
-          {serverVerificationResult.valid ? (
-            <CheckCircle className="h-4 w-4" />
-          ) : (
-            <XCircle className="h-4 w-4" />
-          )}
-          <AlertTitle>
-            Server: {serverVerificationResult.valid ? "Valid Signature" : "Invalid Signature"}
-          </AlertTitle>
-          <AlertDescription>
-            {serverVerificationResult.message}
-            {serverVerificationResult.details && (
-              <div className="mt-2 text-xs space-y-1">
-                <div>Address match: {serverVerificationResult.details.addressMatch ? "Yes" : "No"}</div>
-                <div>Public key match: {serverVerificationResult.details.publicKeyMatch ? "Yes" : "No"}</div>
-                <div>Signature valid: {serverVerificationResult.details.signatureValid ? "Yes" : "No"}</div>
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-    </>
-  )
-
-  // Extended form content with verify buttons
-  const formContentWithVerify = (
-    <>
-      {formContent}
-
-      {/* Verify buttons inside form */}
-      <div className="flex flex-wrap gap-2 pt-2 border-t">
-        <Button
-          onClick={verify}
-          variant="outline"
-          disabled={!canVerify || isVerifying}
-          className="gap-2"
-        >
-          {isVerifying ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ShieldCheck className="h-4 w-4" />
-          )}
-          Verify (Client)
-        </Button>
-        <Button
-          onClick={verifyOnServer}
-          variant="outline"
-          disabled={!canVerify || isVerifyingOnServer}
-          className="gap-2"
-        >
-          {isVerifyingOnServer ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Server className="h-4 w-4" />
-          )}
-          Verify (Server)
-        </Button>
-      </div>
     </>
   )
 
   return (
-    <FormContainer
-      title="Sign Data"
-      formContent={formContentWithVerify}
-      requestJson={requestJson}
-      onJsonChange={setFromJson}
-      onSend={sign}
-      validateJson={validateSignDataJson}
-      isConnected={isConnected}
-    />
+    <div className="space-y-6">
+      <FormContainer
+        title="Sign Data"
+        formContent={formContent}
+        requestJson={requestJson}
+        onJsonChange={setFromJson}
+        onSend={sign}
+        validateJson={validateSignDataJson}
+        isConnected={isConnected}
+      />
+
+      {lastResult && (
+        <SignDataResultCard
+          result={lastResult}
+          onDismiss={clearResult}
+          onLoadToForm={loadResultToForm}
+          canVerify={canVerify}
+          onVerifyClient={verify}
+          onVerifyServer={verifyOnServer}
+          isVerifyingClient={isVerifying}
+          isVerifyingServer={isVerifyingOnServer}
+          clientResult={verificationResult}
+          serverResult={serverVerificationResult}
+        />
+      )}
+    </div>
   )
 }

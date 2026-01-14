@@ -220,12 +220,17 @@
 }
 
 .header-content {
+  /* Fallback padding when scroll-timeline not available or no scroll */
+  padding-top: 24px;
+  padding-bottom: 24px;
   animation: header-padding linear both;
   animation-timeline: scroll(root);
   animation-range: 0px 100px;
 }
 
 .header-title {
+  /* Fallback when scroll-timeline not available or no scroll */
+  transform: scale(1);
   transform-origin: left center;
   animation: title-shrink linear both;
   animation-timeline: scroll(root);
@@ -233,12 +238,18 @@
 }
 
 .header-subtitle {
+  /* Fallback when scroll-timeline not available or no scroll */
+  opacity: 1;
+  height: 20px;
+  margin-top: 4px;
   animation: subtitle-hide linear both;
   animation-timeline: scroll(root);
   animation-range: 0px 70px;
 }
 
 .header-button {
+  /* Fallback when scroll-timeline not available or no scroll */
+  transform: scale(1);
   animation: button-shrink linear both;
   animation-timeline: scroll(root);
   animation-range: 0px 100px;
