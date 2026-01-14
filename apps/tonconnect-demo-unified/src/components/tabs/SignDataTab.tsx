@@ -90,6 +90,7 @@ export function SignDataTab() {
     <div className="space-y-6">
       <FormContainer
         title="Sign Data"
+        submitButtonText="Sign Data"
         formContent={formContent}
         requestJson={requestJson}
         onJsonChange={setFromJson}

@@ -270,6 +270,7 @@ export function TransactionTab() {
     <div className="space-y-6">
       <FormContainer
         title="Transaction Request"
+        submitButtonText="Send Transaction"
         formContent={formContent}
         requestJson={requestJson}
         onJsonChange={setFromJson}

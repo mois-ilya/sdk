@@ -31,6 +31,7 @@ type EditorMode = "form" | "code"
 interface FormContainerProps {
   // Metadata
   title: string
+  submitButtonText?: string
 
   // Content
   formContent: ReactNode
@@ -68,6 +69,7 @@ function isValidJson(str: string): boolean {
 
 export function FormContainer({
   title,
+  submitButtonText,
   formContent,
   requestJson,
   onJsonChange,
@@ -219,8 +221,8 @@ export function FormContainer({
   const sendDisabled = !isConnected
 
   // Send button text
-  const sendButtonText = isConnected
-    ? "Send Transaction"
+  const buttonText = isConnected
+    ? submitButtonText
     : "Connect wallet"
 
   return (
@@ -280,7 +282,7 @@ export function FormContainer({
               onClick={handleSend}
               disabled={sendDisabled}
             >
-              {sendButtonText}
+              {buttonText}
             </Button>
           </div>
         </CardHeader>
