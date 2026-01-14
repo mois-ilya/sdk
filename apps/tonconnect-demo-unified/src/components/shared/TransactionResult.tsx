@@ -85,7 +85,7 @@ export function TransactionResult({ boc, validUntil }: TransactionResultProps) {
         {/* Hash with explorer link */}
         {hash && (
           <div className="space-y-2">
-            <Label>Transaction Hash (TEP-467)</Label>
+            <Label>Transaction Normalized Hash (TEP-467)</Label>
             <div className="flex gap-2 items-center">
               <a
                 href={getExplorerUrl(hash, network)}

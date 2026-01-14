@@ -16,7 +16,6 @@ export function SignDataTab() {
     dataText, setDataText,
     schema, setSchema,
     requestJson,
-    responseJson,
     sign,
     setFromJson,
     isConnected,
@@ -111,50 +110,52 @@ export function SignDataTab() {
     </>
   )
 
-  const submitButton = (
-    <div className="flex flex-wrap gap-2">
-      <Button onClick={sign} className="flex-1" disabled={!isConnected}>
-        {isConnected ? "Sign Data" : "Connect wallet to sign"}
-      </Button>
-      <Button
-        onClick={verify}
-        variant="outline"
-        disabled={!canVerify || isVerifying}
-        className="gap-2"
-      >
-        {isVerifying ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <ShieldCheck className="h-4 w-4" />
-        )}
-        Verify (Client)
-      </Button>
-      <Button
-        onClick={verifyOnServer}
-        variant="outline"
-        disabled={!canVerify || isVerifyingOnServer}
-        className="gap-2"
-      >
-        {isVerifyingOnServer ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Server className="h-4 w-4" />
-        )}
-        Verify (Server)
-      </Button>
-    </div>
+  // Extended form content with verify buttons
+  const formContentWithVerify = (
+    <>
+      {formContent}
+
+      {/* Verify buttons inside form */}
+      <div className="flex flex-wrap gap-2 pt-2 border-t">
+        <Button
+          onClick={verify}
+          variant="outline"
+          disabled={!canVerify || isVerifying}
+          className="gap-2"
+        >
+          {isVerifying ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ShieldCheck className="h-4 w-4" />
+          )}
+          Verify (Client)
+        </Button>
+        <Button
+          onClick={verifyOnServer}
+          variant="outline"
+          disabled={!canVerify || isVerifyingOnServer}
+          className="gap-2"
+        >
+          {isVerifyingOnServer ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Server className="h-4 w-4" />
+          )}
+          Verify (Server)
+        </Button>
+      </div>
+    </>
   )
 
   return (
     <FormContainer
-      formTitle="Configure and sign data"
-      formDescription="Sign text, binary data, or cell data with your wallet"
-      formContent={formContent}
+      title="Sign Data"
+      formContent={formContentWithVerify}
       requestJson={requestJson}
-      responseJson={responseJson}
       onJsonChange={setFromJson}
+      onSend={sign}
       validateJson={validateSignDataJson}
-      submitButton={submitButton}
+      isConnected={isConnected}
     />
   )
 }

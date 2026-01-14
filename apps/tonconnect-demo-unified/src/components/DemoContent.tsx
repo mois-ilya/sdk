@@ -9,7 +9,7 @@ function DemoContentInner() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="mx-auto max-w-6xl px-4 md:px-8 pt-6 pb-8">
+      <main className="mx-auto max-w-7xl px-4 md:px-8 pt-6 pb-8">
         <Tabs defaultValue="transaction" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="transaction">Transaction</TabsTrigger>

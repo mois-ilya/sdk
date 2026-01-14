@@ -67,8 +67,8 @@ export function useTransactionTracker({ boc, validUntil, network }: UseTransacti
     if (!hash || status !== "pending") return
 
     const endpoint = network === "testnet"
-      ? "https://testnet.toncenter.com/api/v2"
-      : "https://toncenter.com/api/v2"
+      ? "https://testnet.toncenter.com/api/v3"
+      : "https://toncenter.com/api/v3"
 
     const poll = async () => {
       if (Date.now() / 1000 > validUntil) {
@@ -78,17 +78,17 @@ export function useTransactionTracker({ boc, validUntil, network }: UseTransacti
 
       try {
         const response = await fetch(
-          `${endpoint}/getTransactionsByMessage?msg_hash=${hash}&direction=in`
+          `${endpoint}/transactionsByMessage?msg_hash=${hash}&direction=in`
         )
         const data = await response.json()
 
-        if (data.result?.length > 0) {
-          const tx = data.result[0]
+        if (data.transactions?.length > 0) {
+          const tx = data.transactions[0]
           setTransaction({
-            lt: tx.transaction_id.lt,
-            hash: tx.transaction_id.hash,
-            fee: tx.fee,
-            timestamp: tx.utime,
+            lt: tx.lt,
+            hash: tx.hash,
+            fee: tx.total_fees,
+            timestamp: tx.now,
           })
           setStatus("confirmed")
         }

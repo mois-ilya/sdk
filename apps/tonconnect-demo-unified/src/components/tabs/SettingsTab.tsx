@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useSettingsContext } from "@/context/SettingsContext"
+import { NetworkPicker } from "@/components/NetworkPicker"
 import { RotateCcw } from "lucide-react"
-import type { ThemeOption, ColorsConfig } from "@/hooks/useSettings"
+import type { ThemeOption, ColorsConfig, FeaturesMode } from "@/hooks/useSettings"
 
 function ColorInput({
   label,
@@ -56,51 +58,40 @@ function ColorsCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
+          <p className="text-sm font-medium text-muted-foreground">Constants</p>
+          <ColorInput label="Black" value={colors.constantBlack} onChange={(v) => onUpdate("constantBlack", v)} />
+          <ColorInput label="White" value={colors.constantWhite} onChange={(v) => onUpdate("constantWhite", v)} />
+        </div>
+        <div className="space-y-3">
           <p className="text-sm font-medium text-muted-foreground">Connect Button</p>
-          <ColorInput
-            label="Background"
-            value={colors.connectButtonBg}
-            onChange={(v) => onUpdate("connectButtonBg", v)}
-          />
-          <ColorInput
-            label="Foreground"
-            value={colors.connectButtonFg}
-            onChange={(v) => onUpdate("connectButtonFg", v)}
-          />
+          <ColorInput label="Background" value={colors.connectButtonBg} onChange={(v) => onUpdate("connectButtonBg", v)} />
+          <ColorInput label="Foreground" value={colors.connectButtonFg} onChange={(v) => onUpdate("connectButtonFg", v)} />
         </div>
         <div className="space-y-3">
           <p className="text-sm font-medium text-muted-foreground">General</p>
-          <ColorInput
-            label="Accent"
-            value={colors.accent}
-            onChange={(v) => onUpdate("accent", v)}
-          />
+          <ColorInput label="Accent" value={colors.accent} onChange={(v) => onUpdate("accent", v)} />
+          <ColorInput label="Telegram Button" value={colors.telegramButton} onChange={(v) => onUpdate("telegramButton", v)} />
+        </div>
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-muted-foreground">Icons</p>
+          <ColorInput label="Primary" value={colors.iconPrimary} onChange={(v) => onUpdate("iconPrimary", v)} />
+          <ColorInput label="Secondary" value={colors.iconSecondary} onChange={(v) => onUpdate("iconSecondary", v)} />
+          <ColorInput label="Tertiary" value={colors.iconTertiary} onChange={(v) => onUpdate("iconTertiary", v)} />
+          <ColorInput label="Success" value={colors.iconSuccess} onChange={(v) => onUpdate("iconSuccess", v)} />
+          <ColorInput label="Error" value={colors.iconError} onChange={(v) => onUpdate("iconError", v)} />
         </div>
         <div className="space-y-3">
           <p className="text-sm font-medium text-muted-foreground">Background</p>
-          <ColorInput
-            label="Primary"
-            value={colors.backgroundPrimary}
-            onChange={(v) => onUpdate("backgroundPrimary", v)}
-          />
-          <ColorInput
-            label="Secondary"
-            value={colors.backgroundSecondary}
-            onChange={(v) => onUpdate("backgroundSecondary", v)}
-          />
+          <ColorInput label="Primary" value={colors.backgroundPrimary} onChange={(v) => onUpdate("backgroundPrimary", v)} />
+          <ColorInput label="Secondary" value={colors.backgroundSecondary} onChange={(v) => onUpdate("backgroundSecondary", v)} />
+          <ColorInput label="Segment" value={colors.backgroundSegment} onChange={(v) => onUpdate("backgroundSegment", v)} />
+          <ColorInput label="Tint" value={colors.backgroundTint} onChange={(v) => onUpdate("backgroundTint", v)} />
+          <ColorInput label="QR Code" value={colors.backgroundQr} onChange={(v) => onUpdate("backgroundQr", v)} />
         </div>
         <div className="space-y-3">
           <p className="text-sm font-medium text-muted-foreground">Text</p>
-          <ColorInput
-            label="Primary"
-            value={colors.textPrimary}
-            onChange={(v) => onUpdate("textPrimary", v)}
-          />
-          <ColorInput
-            label="Secondary"
-            value={colors.textSecondary}
-            onChange={(v) => onUpdate("textSecondary", v)}
-          />
+          <ColorInput label="Primary" value={colors.textPrimary} onChange={(v) => onUpdate("textPrimary", v)} />
+          <ColorInput label="Secondary" value={colors.textSecondary} onChange={(v) => onUpdate("textSecondary", v)} />
         </div>
       </CardContent>
     </Card>
@@ -125,49 +116,83 @@ export function SettingsTab() {
     skipRedirect, setSkipRedirect,
     twaReturnUrl, setTwaReturnUrl,
     enableAndroidBackHandler, setEnableAndroidBackHandler,
+    featuresMode, setFeaturesMode,
+    minMessages, setMinMessages,
+    extraCurrencyRequired, setExtraCurrencyRequired,
+    signDataTypes, setSignDataTypes,
   } = useSettingsContext()
+
+  const handleSignDataTypeChange = (type: string, checked: boolean) => {
+    if (checked) {
+      setSignDataTypes([...signDataTypes, type])
+    } else {
+      setSignDataTypes(signDataTypes.filter(t => t !== type))
+    }
+  }
 
   return (
     <div className="space-y-6">
-      {/* Row 1: UI Settings + Modals + Notifications */}
+      {/* Row 1: Connection Settings + Modals + Notifications */}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>UI Settings</CardTitle>
+            <CardTitle>Connection Settings</CardTitle>
+            <CardDescription>Network and wallet filtering</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <NetworkPicker />
+
             <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
-              <Select value={language} onValueChange={(v) => setLanguage(v as "en" | "ru")}>
-                <SelectTrigger id="language"><SelectValue /></SelectTrigger>
+              <Label htmlFor="featuresMode">Wallet Features Filter</Label>
+              <Select value={featuresMode} onValueChange={(v) => setFeaturesMode(v as FeaturesMode)}>
+                <SelectTrigger id="featuresMode"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="ru">Русский</SelectItem>
+                  <SelectItem value="none">None (show all wallets)</SelectItem>
+                  <SelectItem value="required">Required (disable unsupported)</SelectItem>
+                  <SelectItem value="preferred">Preferred (move to end)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="theme">Theme</Label>
-              <Select value={theme} onValueChange={(v) => setTheme(v as ThemeOption)}>
-                <SelectTrigger id="theme"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="borders">Border Radius</Label>
-              <Select value={borderRadius} onValueChange={(v) => setBorderRadius(v as "s" | "m" | "none")}>
-                <SelectTrigger id="borders"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="m">Medium</SelectItem>
-                  <SelectItem value="s">Small</SelectItem>
-                  <SelectItem value="none">None</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            {featuresMode !== "none" && (
+              <div className="space-y-3 rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="minMessages">Min Messages</Label>
+                  <Input
+                    id="minMessages"
+                    type="number"
+                    min="1"
+                    max="255"
+                    className="w-20"
+                    value={minMessages ?? ""}
+                    onChange={(e) => setMinMessages(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="extraCurrency">Extra Currency</Label>
+                  <Switch
+                    id="extraCurrency"
+                    checked={extraCurrencyRequired}
+                    onCheckedChange={setExtraCurrencyRequired}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sign Data Types</Label>
+                  <div className="flex gap-4">
+                    {["text", "cell", "binary"].map(type => (
+                      <div key={type} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`signData-${type}`}
+                          checked={signDataTypes.includes(type)}
+                          onCheckedChange={(checked) => handleSignDataTypeChange(type, !!checked)}
+                        />
+                        <Label htmlFor={`signData-${type}`} className="text-sm">{type}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -214,8 +239,49 @@ export function SettingsTab() {
         </Card>
       </div>
 
-      {/* Row 2: Redirect Settings + Android Settings */}
+      {/* Row 2: UI Settings + Redirect Settings */}
       <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>UI Settings</CardTitle>
+            <CardDescription>TonConnect UI appearance</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="language">Language</Label>
+              <Select value={language} onValueChange={(v) => setLanguage(v as "en" | "ru")}>
+                <SelectTrigger id="language"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="ru">Русский</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="theme">Theme</Label>
+              <Select value={theme} onValueChange={(v) => setTheme(v as ThemeOption)}>
+                <SelectTrigger id="theme"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="borders">Border Radius</Label>
+              <Select value={borderRadius} onValueChange={(v) => setBorderRadius(v as "s" | "m" | "none")}>
+                <SelectTrigger id="borders"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="m">Medium</SelectItem>
+                  <SelectItem value="s">Small</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Redirect Settings</CardTitle>
@@ -257,31 +323,32 @@ export function SettingsTab() {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Android Settings</CardTitle>
-            <CardDescription>Android-specific behavior</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="androidBack">Enable Back Handler</Label>
-                <p className="text-xs text-muted-foreground">
-                  Use Android back button to close modals
-                </p>
-              </div>
-              <Switch
-                id="androidBack"
-                checked={enableAndroidBackHandler}
-                onCheckedChange={setEnableAndroidBackHandler}
-              />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Row 3: Colors */}
+      {/* Row 3: Android Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Android Settings</CardTitle>
+          <CardDescription>Android-specific behavior</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="androidBack">Enable Back Handler</Label>
+              <p className="text-xs text-muted-foreground">
+                Use Android back button to close modals
+              </p>
+            </div>
+            <Switch
+              id="androidBack"
+              checked={enableAndroidBackHandler}
+              onCheckedChange={setEnableAndroidBackHandler}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Row 4: Colors */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Colors</h3>
