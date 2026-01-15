@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { FormContainer } from "@/components/shared/FormContainer"
 import { SignDataResultCard } from "@/components/shared/SignDataResultCard"
+import { FieldLabel } from "@/components/shared/FieldLabel"
 import { useSignData } from "@/hooks/useSignData"
 import { useSettingsContext } from "@/context/SettingsContext"
 import { validateSignDataJson } from "@/utils/validator"
@@ -35,7 +35,7 @@ export function SignDataTab() {
   const formContent = (
     <>
       <div className="space-y-2">
-        <Label>Data type</Label>
+        <FieldLabel fieldId="dataType">Data type</FieldLabel>
         <div className="flex gap-1 rounded-lg border bg-background p-1">
           <Button
             variant={dataType === "text" ? "secondary" : "ghost"}
@@ -63,7 +63,7 @@ export function SignDataTab() {
 
       {dataType === "cell" && (
         <div className="space-y-2">
-          <Label htmlFor="schema">Schema (TL-B)</Label>
+          <FieldLabel htmlFor="schema" fieldId="schema">Schema (TL-B)</FieldLabel>
           <Input
             id="schema"
             value={schema}
@@ -74,7 +74,12 @@ export function SignDataTab() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="signData">{dataType === "cell" ? "Cell (base64 BOC)" : "Data for sign"}</Label>
+        <FieldLabel
+          htmlFor="signData"
+          fieldId={dataType === "text" ? "text" : dataType === "binary" ? "bytes" : "cell"}
+        >
+          {dataType === "cell" ? "Cell (base64 BOC)" : "Data for sign"}
+        </FieldLabel>
         <Textarea
           id="signData"
           value={dataText}

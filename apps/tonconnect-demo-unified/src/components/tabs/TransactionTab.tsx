@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { FormContainer } from "@/components/shared/FormContainer"
 import { HistoryList } from "@/components/shared/HistoryList"
+import { FieldLabel } from "@/components/shared/FieldLabel"
 import { useTransaction, PRESETS } from "@/hooks/useTransaction"
 import { useSettingsContext } from "@/context/SettingsContext"
 import { validateTransactionJson } from "@/utils/validator"
@@ -116,7 +117,7 @@ export function TransactionTab() {
       {/* Valid Until - unix timestamp with quick buttons */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="validUntil">Valid Until</Label>
+          <FieldLabel htmlFor="validUntil" fieldId="validUntil">Valid Until</FieldLabel>
           <span
             className={`text-sm font-mono cursor-default ${timeLeft === "Expired" ? "text-destructive" : "text-muted-foreground"}`}
             onMouseEnter={() => setIsHoveringTimer(true)}
@@ -142,7 +143,7 @@ export function TransactionTab() {
       {/* Network + From */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="network" className="text-muted-foreground">Network (optional)</Label>
+          <FieldLabel htmlFor="network" fieldId="network" className="text-muted-foreground">Network (optional)</FieldLabel>
           <Input
             id="network"
             value={network || walletNetwork}
@@ -152,7 +153,7 @@ export function TransactionTab() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="from" className="text-muted-foreground">From (optional)</Label>
+          <FieldLabel htmlFor="from" fieldId="from" className="text-muted-foreground">From (optional)</FieldLabel>
           <Input
             id="from"
             value={from}
@@ -185,7 +186,7 @@ export function TransactionTab() {
 
             {/* Address */}
             <div className="space-y-1">
-              <Label htmlFor={`address-${index}`} className="text-xs">Address</Label>
+              <FieldLabel htmlFor={`address-${index}`} fieldId="address" className="text-xs">Address</FieldLabel>
               <Input
                 id={`address-${index}`}
                 value={message.address}
@@ -197,7 +198,7 @@ export function TransactionTab() {
 
             {/* Amount with unit selector */}
             <div className="space-y-1">
-              <Label htmlFor={`amount-${index}`} className="text-xs">Amount</Label>
+              <FieldLabel htmlFor={`amount-${index}`} fieldId="amount" className="text-xs">Amount</FieldLabel>
               <div className="flex gap-1">
                 <Input
                   id={`amount-${index}`}
@@ -235,7 +236,7 @@ export function TransactionTab() {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="pt-2 space-y-2">
                     <div className="space-y-1">
-                      <Label htmlFor={`payload-${index}`} className="text-xs">Payload</Label>
+                      <FieldLabel htmlFor={`payload-${index}`} fieldId="payload" className="text-xs">Payload</FieldLabel>
                       <Textarea
                         id={`payload-${index}`}
                         value={message.payload}
@@ -246,7 +247,7 @@ export function TransactionTab() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor={`stateInit-${index}`} className="text-xs">State Init</Label>
+                      <FieldLabel htmlFor={`stateInit-${index}`} fieldId="stateInit" className="text-xs">State Init</FieldLabel>
                       <Textarea
                         id={`stateInit-${index}`}
                         value={message.stateInit}
