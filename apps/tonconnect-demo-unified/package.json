@@ -55,6 +55,7 @@
     "tailwindcss": "^4.1.18",
     "tailwindcss-animate": "^1.0.7",
     "tweetnacl": "^1.0.3",
+    "yaml": "^2.8.2",
     "zod": "^4.3.5"
   },
   "devDependencies": {

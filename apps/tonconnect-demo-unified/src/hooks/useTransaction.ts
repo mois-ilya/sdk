@@ -83,6 +83,9 @@ export function useTransaction(showToastBefore = true, showToastSuccess = true, 
   // Operation result with snapshot
   const [lastResult, setLastResult] = useState<OperationResult | null>(null)
 
+  // Loading state
+  const [isSending, setIsSending] = useState(false)
+
   // Helper to add time to validUntil
   const addTimeToValidUntil = useCallback((seconds: number) => {
     setValidUntil(Math.floor(Date.now() / 1000) + seconds)
@@ -212,6 +215,7 @@ export function useTransaction(showToastBefore = true, showToastSuccess = true, 
     const walletAddress = wallet.account.address
     const walletNetwork = wallet.account.chain === CHAIN.TESTNET ? "testnet" as const : "mainnet" as const
 
+    setIsSending(true)
     try {
       if (showToastBefore) toast.info("Please confirm in your wallet")
 
@@ -271,6 +275,8 @@ export function useTransaction(showToastBefore = true, showToastSuccess = true, 
       })
 
       if (showToastError) toast.error(message)
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -357,6 +363,7 @@ export function useTransaction(showToastBefore = true, showToastSuccess = true, 
     sendRaw,
     setFromJson,
     isConnected: !!wallet,
+    isSending,
     // Operation result with snapshot
     lastResult,
     clearResult,

@@ -58,6 +58,9 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
   // Operation result with snapshot
   const [lastResult, setLastResult] = useState<SignDataOperationResult | null>(null)
 
+  // Loading state
+  const [isSigning, setIsSigning] = useState(false)
+
   // For verification (keeping lastResponse for internal use)
   const [lastResponse, setLastResponse] = useState<SignDataResponse | null>(null)
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null)
@@ -114,6 +117,7 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
     // Freeze request snapshot BEFORE sending
     const requestSnapshot = requestJson
 
+    setIsSigning(true)
     try {
       let payload: Record<string, string>
       if (dataType === "text") {
@@ -156,6 +160,8 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
       })
 
       if (showToastError) toast.error(message)
+    } finally {
+      setIsSigning(false)
     }
   }
 
@@ -258,6 +264,7 @@ export function useSignData(showToastBefore = true, showToastSuccess = true, sho
     sign,
     setFromJson,
     isConnected: !!wallet,
+    isSigning,
     // Operation result with snapshot
     lastResult,
     clearResult,

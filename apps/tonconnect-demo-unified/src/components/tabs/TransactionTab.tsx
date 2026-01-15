@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react"
 import { useTonWallet } from "@tonconnect/ui-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -37,6 +36,7 @@ export function TransactionTab() {
     sendRaw,
     setFromJson,
     isConnected,
+    isSending,
     lastResult,
     clearResult,
     loadResultToForm,
@@ -166,7 +166,7 @@ export function TransactionTab() {
       {/* Messages */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>Messages</Label>
+          <FieldLabel fieldId="messages">Messages</FieldLabel>
           <Button variant="outline" size="sm" onClick={addMessage}>
             <Plus className="mr-1 h-3 w-3" />Add
           </Button>
@@ -178,7 +178,7 @@ export function TransactionTab() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Message {index + 1}</span>
               {messages.length > 1 && (
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => removeMessage(index)}>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => removeMessage(index)} aria-label="Remove message">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               )}
@@ -271,6 +271,7 @@ export function TransactionTab() {
     <div className="space-y-6">
       <FormContainer
         title="Transaction Request"
+        sectionId="transaction"
         submitButtonText="Send Transaction"
         formContent={formContent}
         requestJson={requestJson}
@@ -279,6 +280,7 @@ export function TransactionTab() {
         onSendRaw={sendRaw}
         validateJson={validateTransactionJson}
         isConnected={isConnected}
+        isLoading={isSending}
         presets={presetOptions}
         onPresetSelect={handlePresetSelect}
         lastResult={lastResult}

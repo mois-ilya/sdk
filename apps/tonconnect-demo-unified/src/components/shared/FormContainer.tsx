@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { JsonViewer } from "./JsonViewer"
 import { ResultCard } from "./ResultCard"
-import { AlertCircle, AlertTriangle, Copy, ChevronDown, RotateCcw } from "lucide-react"
+import { FieldInfoModal } from "./FieldInfoModal"
+import { getSectionInfo } from "@/data/field-info"
+import { AlertCircle, AlertTriangle, Copy, ChevronDown, RotateCcw, Loader2, Info } from "lucide-react"
 import { toast } from "sonner"
 import { useSettingsContext } from "@/context/SettingsContext"
 import { createTonConnectTheme } from "@/lib/codemirror-theme"
@@ -26,11 +28,12 @@ export interface PresetOption {
   description: string
 }
 
-type EditorMode = "form" | "code"
+type EditorMode = "form" | "raw"
 
 interface FormContainerProps {
   // Metadata
   title: string
+  sectionId?: string
   submitButtonText?: string
   codeEditorHeight?: string
 
@@ -48,6 +51,7 @@ interface FormContainerProps {
 
   // State
   isConnected: boolean
+  isLoading?: boolean
 
   // Presets
   presets?: PresetOption[]
@@ -70,6 +74,7 @@ function isValidJson(str: string): boolean {
 
 export function FormContainer({
   title,
+  sectionId,
   submitButtonText = "Send Transaction",
   codeEditorHeight = "400px",
   formContent,
@@ -79,6 +84,7 @@ export function FormContainer({
   onSendRaw,
   validateJson,
   isConnected,
+  isLoading = false,
   presets,
   onPresetSelect,
   lastResult,
@@ -88,7 +94,11 @@ export function FormContainer({
   const [mode, setMode] = useState<EditorMode>("form")
   const [editedJson, setEditedJson] = useState(requestJson)
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
+  const [sectionModalOpen, setSectionModalOpen] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null)
+
+  // Get section info for the info icon
+  const sectionInfo = sectionId ? getSectionInfo(sectionId) : undefined
 
   const { theme } = useSettingsContext()
 
@@ -125,7 +135,7 @@ export function FormContainer({
   const handleModeChange = (newMode: EditorMode) => {
     if (newMode === mode) return
 
-    if (mode === "code" && newMode === "form") {
+    if (mode === "raw" && newMode === "form") {
       // Code → Form: check validity first
       if (!isValidJson(editedJson)) {
         // Syntax error - confirm discard
@@ -154,7 +164,7 @@ export function FormContainer({
       setValidationResult(null)
     }
 
-    if (mode === "form" && newMode === "code") {
+    if (mode === "form" && newMode === "raw") {
       // Form → Code: sync JSON
       setEditedJson(requestJson)
       setValidationResult(null)
@@ -219,20 +229,27 @@ export function FormContainer({
   const hasSyntaxError = validationResult?.errors.some(e => e.message === "Invalid JSON syntax")
   const hasSchemaWarnings = validationResult && !validationResult.valid && !hasSyntaxError
 
-  // Send button disabled state - only disabled if not connected
-  const sendDisabled = !isConnected
-
-  // Send button text
-  const buttonText = isConnected
-    ? submitButtonText
-    : "Connect wallet"
+  // Send button disabled state - disabled if not connected or loading
+  const sendDisabled = !isConnected || isLoading
 
   return (
     <div className="space-y-4">
       <Card>
         {/* Header: Title + Toggle + Send */}
         <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b">
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">{title}</h2>
+            {sectionInfo && (
+              <button
+                type="button"
+                onClick={() => setSectionModalOpen(true)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={`Learn more about ${title}`}
+              >
+                <Info className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Presets Dropdown */}
@@ -270,12 +287,12 @@ export function FormContainer({
                 Form
               </Button>
               <Button
-                variant={mode === "code" ? "secondary" : "ghost"}
+                variant={mode === "raw" ? "secondary" : "ghost"}
                 size="sm"
                 className="rounded-l-none"
-                onClick={() => handleModeChange("code")}
+                onClick={() => handleModeChange("raw")}
               >
-                Code
+                Raw
               </Button>
             </div>
 
@@ -284,7 +301,8 @@ export function FormContainer({
               onClick={handleSend}
               disabled={sendDisabled}
             >
-              {buttonText}
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {submitButtonText}
             </Button>
           </div>
         </CardHeader>
@@ -409,6 +427,15 @@ export function FormContainer({
             onLoadToForm={onLoadResult}
           />
         </div>
+      )}
+
+      {/* Section Info Modal */}
+      {sectionInfo && (
+        <FieldInfoModal
+          open={sectionModalOpen}
+          onOpenChange={setSectionModalOpen}
+          info={sectionInfo}
+        />
       )}
     </div>
   )

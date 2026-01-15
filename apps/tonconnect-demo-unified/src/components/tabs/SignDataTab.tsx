@@ -18,6 +18,7 @@ export function SignDataTab() {
     sign,
     setFromJson,
     isConnected,
+    isSigning,
     // Result
     lastResult,
     clearResult,
@@ -35,7 +36,7 @@ export function SignDataTab() {
   const formContent = (
     <>
       <div className="space-y-2">
-        <FieldLabel fieldId="dataType">Data type</FieldLabel>
+        <FieldLabel fieldId="dataType">Data Type</FieldLabel>
         <div className="flex gap-1 rounded-lg border bg-background p-1">
           <Button
             variant={dataType === "text" ? "secondary" : "ghost"}
@@ -78,7 +79,7 @@ export function SignDataTab() {
           htmlFor="signData"
           fieldId={dataType === "text" ? "text" : dataType === "binary" ? "bytes" : "cell"}
         >
-          {dataType === "cell" ? "Cell (base64 BOC)" : "Data for sign"}
+          {dataType === "text" ? "Text" : dataType === "binary" ? "Data (base64)" : "Cell (BOC)"}
         </FieldLabel>
         <Textarea
           id="signData"
@@ -95,6 +96,7 @@ export function SignDataTab() {
     <div className="space-y-6">
       <FormContainer
         title="Sign Data"
+        sectionId="signData"
         submitButtonText="Sign"
         codeEditorHeight="200px"
         formContent={formContent}
@@ -103,6 +105,7 @@ export function SignDataTab() {
         onSend={sign}
         validateJson={validateSignDataJson}
         isConnected={isConnected}
+        isLoading={isSigning}
       />
 
       {lastResult && (
