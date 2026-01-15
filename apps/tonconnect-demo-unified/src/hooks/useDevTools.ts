@@ -13,7 +13,7 @@ export function useDevTools() {
   })
 
   // QA Mode state (read from localStorage, set triggers reload)
-  const [qaMode, setQaModeState] = useState(() => {
+  const [qaMode] = useState(() => {
     return localStorage.getItem(STORAGE_KEYS.QA_MODE) === 'true'
   })
 
