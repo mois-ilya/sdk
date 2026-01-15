@@ -32,6 +32,7 @@ interface FormContainerProps {
   // Metadata
   title: string
   submitButtonText?: string
+  codeEditorHeight?: string
 
   // Content
   formContent: ReactNode
@@ -69,7 +70,8 @@ function isValidJson(str: string): boolean {
 
 export function FormContainer({
   title,
-  submitButtonText,
+  submitButtonText = "Send Transaction",
+  codeEditorHeight = "400px",
   formContent,
   requestJson,
   onJsonChange,
@@ -361,7 +363,7 @@ export function FormContainer({
                 }}
                 extensions={[json(), ...codemirrorTheme]}
                 theme="none"
-                height="400px"
+                height={codeEditorHeight}
                 className="rounded-md border overflow-hidden"
               />
 
