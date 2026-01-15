@@ -1,12 +1,16 @@
 import { TonConnectButton } from "@tonconnect/ui-react"
-import { Button } from "@/components/ui/button"
 import { useSettingsContext } from "@/context/SettingsContext"
-import { Moon, Sun } from "lucide-react"
+import { Monitor, Sun, Moon } from "lucide-react"
+import type { ThemeOption } from "@/hooks/useSettings"
 
 export function Header() {
   const { theme, setTheme } = useSettingsContext()
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
-  const ThemeIcon = theme === "dark" ? Sun : Moon
+
+  const themes: { value: ThemeOption; icon: typeof Monitor; label: string }[] = [
+    { value: "system", icon: Monitor, label: "System" },
+    { value: "light", icon: Sun, label: "Light" },
+    { value: "dark", icon: Moon, label: "Dark" },
+  ]
 
   return (
     <header className="header-animated sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
@@ -20,14 +24,23 @@ export function Header() {
           </p>
         </div>
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleTheme}
-            className="header-button h-8 w-8 sm:h-9 sm:w-9"
-          >
-            <ThemeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
+          {/* Theme toggle - compact segmented */}
+          <div className="header-button flex rounded-md border bg-muted/50 p-0.5">
+            {themes.map(({ value, icon: Icon, label }) => (
+              <button
+                key={value}
+                onClick={() => setTheme(value)}
+                title={label}
+                className={`flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-sm transition-colors ${
+                  theme === value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </button>
+            ))}
+          </div>
           <TonConnectButton />
         </div>
       </div>

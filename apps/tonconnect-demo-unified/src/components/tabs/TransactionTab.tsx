@@ -81,17 +81,23 @@ export function TransactionTab() {
       tomorrow.setDate(tomorrow.getDate() + 1)
       const isTomorrow = date.toDateString() === tomorrow.toDateString()
 
-      const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+      const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
 
       if (isToday) return time
       if (isTomorrow) return `tmrw ${time}`
       return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ` ${time}`
     }
 
-    // Format full ISO datetime for hover
+    // Format full datetime for hover (local time, ISO-like format)
     const formatFullTime = (timestamp: number) => {
       const date = new Date(timestamp * 1000)
-      return date.toISOString().replace('T', ' ').slice(0, 19)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const mins = String(date.getMinutes()).padStart(2, '0')
+      const secs = String(date.getSeconds()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hours}:${mins}:${secs}`
     }
 
     // Format countdown as Xh Ym Zs
