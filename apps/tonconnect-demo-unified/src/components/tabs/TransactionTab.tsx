@@ -117,27 +117,29 @@ export function TransactionTab() {
     <>
       {/* Valid Until - unix timestamp with quick buttons */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <FieldLabel htmlFor="validUntil" fieldId="validUntil">Valid Until</FieldLabel>
           <span
-            className={`text-sm font-mono cursor-default ${timeLeft === "Expired" ? "text-destructive" : "text-muted-foreground"}`}
+            className={`text-xs sm:text-sm font-mono cursor-default ${timeLeft === "Expired" ? "text-destructive" : "text-muted-foreground"}`}
             onMouseEnter={() => setIsHoveringTimer(true)}
             onMouseLeave={() => setIsHoveringTimer(false)}
           >
             {timeLeft === "Expired" ? "Expired" : `Expires in ${isHoveringTimer ? exactTime : timeLeft}`}
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Input
             id="validUntil"
             type="number"
             value={validUntil}
             onChange={(e) => setValidUntil(parseInt(e.target.value) || 0)}
-            className="flex-1 font-mono"
+            className="flex-1 min-w-[120px] font-mono"
           />
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => addTimeToValidUntil(60)}>+1m</Button>
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => addTimeToValidUntil(300)}>+5m</Button>
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => addTimeToValidUntil(600)}>+10m</Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" className="h-9 px-2 text-xs" onClick={() => addTimeToValidUntil(60)}>+1m</Button>
+            <Button variant="ghost" size="sm" className="h-9 px-2 text-xs" onClick={() => addTimeToValidUntil(300)}>+5m</Button>
+            <Button variant="ghost" size="sm" className="h-9 px-2 text-xs" onClick={() => addTimeToValidUntil(600)}>+10m</Button>
+          </div>
         </div>
       </div>
 
