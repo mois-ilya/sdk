@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { FormContainer } from "@/components/shared/FormContainer"
 import { HistoryList } from "@/components/shared/HistoryList"
+import { HowItWorksCard } from "@/components/shared/HowItWorksCard"
 import { FieldLabel } from "@/components/shared/FieldLabel"
 import { useTransaction, PRESETS } from "@/hooks/useTransaction"
 import { useSettingsContext } from "@/context/SettingsContext"
@@ -271,7 +272,6 @@ export function TransactionTab() {
     <div className="space-y-6">
       <FormContainer
         title="Transaction Request"
-        sectionId="transaction"
         submitButtonText="Send Transaction"
         formContent={formContent}
         requestJson={requestJson}
@@ -292,6 +292,8 @@ export function TransactionTab() {
         currentWallet={currentWalletAddress}
         onLoadToForm={loadHistoryToForm}
       />
+
+      <HowItWorksCard sectionId="transaction" />
     </div>
   )
 }

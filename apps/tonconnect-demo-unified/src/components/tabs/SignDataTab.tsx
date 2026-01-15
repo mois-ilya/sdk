@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { FormContainer } from "@/components/shared/FormContainer"
 import { SignDataResultCard } from "@/components/shared/SignDataResultCard"
+import { HowItWorksCard } from "@/components/shared/HowItWorksCard"
 import { FieldLabel } from "@/components/shared/FieldLabel"
 import { useSignData } from "@/hooks/useSignData"
 import { useSettingsContext } from "@/context/SettingsContext"
@@ -96,7 +97,6 @@ export function SignDataTab() {
     <div className="space-y-6">
       <FormContainer
         title="Sign Data"
-        sectionId="signData"
         submitButtonText="Sign"
         codeEditorHeight="200px"
         formContent={formContent}
@@ -122,6 +122,8 @@ export function SignDataTab() {
           serverResult={serverVerificationResult}
         />
       )}
+
+      <HowItWorksCard sectionId="signData" />
     </div>
   )
 }
