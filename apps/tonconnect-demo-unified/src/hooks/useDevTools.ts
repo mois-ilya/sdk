@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 const STORAGE_KEYS = {
   QA_MODE: 'devtools:qa-mode',
   ERUDA: 'devtools:eruda',
+  RPC_LOGS: 'devtools:rpc-logs',
   UNLOCKED: 'devtools:unlocked',
 } as const
 
@@ -20,6 +21,11 @@ export function useDevTools() {
   // Eruda state
   const [erudaEnabled, setErudaEnabledState] = useState(() => {
     return localStorage.getItem(STORAGE_KEYS.ERUDA) === 'true'
+  })
+
+  // RPC Logs state
+  const [rpcLogsEnabled, setRpcLogsEnabledState] = useState(() => {
+    return localStorage.getItem(STORAGE_KEYS.RPC_LOGS) === 'true'
   })
 
   // Unlock DevTools (called from secret tap)
@@ -59,6 +65,16 @@ export function useDevTools() {
     setErudaEnabledState(enabled)
   }, [])
 
+  // Set RPC Logs
+  const setRpcLogsEnabled = useCallback((enabled: boolean) => {
+    if (enabled) {
+      localStorage.setItem(STORAGE_KEYS.RPC_LOGS, 'true')
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.RPC_LOGS)
+    }
+    setRpcLogsEnabledState(enabled)
+  }, [])
+
   // Initialize eruda on mount if enabled
   useEffect(() => {
     if (erudaEnabled) {
@@ -70,6 +86,7 @@ export function useDevTools() {
   const resetAll = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.QA_MODE)
     localStorage.removeItem(STORAGE_KEYS.ERUDA)
+    localStorage.removeItem(STORAGE_KEYS.RPC_LOGS)
     localStorage.removeItem(STORAGE_KEYS.UNLOCKED)
     window.location.reload()
   }, [])
@@ -82,6 +99,8 @@ export function useDevTools() {
     setQaMode,
     erudaEnabled,
     setErudaEnabled,
+    rpcLogsEnabled,
+    setRpcLogsEnabled,
     resetAll,
   }
 }

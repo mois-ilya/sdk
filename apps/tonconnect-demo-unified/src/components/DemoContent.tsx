@@ -4,7 +4,9 @@ import { Toaster } from "@/components/ui/sonner"
 import { SettingsProvider } from "@/context/SettingsContext"
 import { useDevToolsContext } from "@/context/DevToolsContext"
 import { useHashTab } from "@/hooks/useHashTab"
+import { useSdkLogs } from "@/hooks/useSdkLogs"
 import { Header } from "./Header"
+import { RpcLogViewer } from "./shared/RpcLogViewer"
 import { TransactionTab, SignDataTab, SubscriptionTab, TonProofTab, SettingsTab, DevToolsTab } from "./tabs"
 
 const ALL_TABS = ["transaction", "sign", "subscription", "tonproof", "settings", "devtools"] as const
@@ -12,7 +14,10 @@ const PUBLIC_TABS = ALL_TABS.filter(t => t !== "devtools")
 const DEFAULT_TAB = "transaction"
 
 function DemoContentInner() {
-  const { isUnlocked } = useDevToolsContext()
+  const { isUnlocked, rpcLogsEnabled } = useDevToolsContext()
+
+  // SDK RPC logs (only active when toggle is enabled)
+  const { logs, clearLogs } = useSdkLogs(rpcLogsEnabled)
 
   // Valid tabs depend on DevTools unlock state
   const validTabs = useMemo(
@@ -67,6 +72,14 @@ function DemoContentInner() {
           )}
         </Tabs>
       </main>
+
+      {/* RPC Logs footer - visible on all tabs when enabled */}
+      {rpcLogsEnabled && (
+        <footer className="mx-auto max-w-7xl px-4 md:px-8 pb-8">
+          <RpcLogViewer logs={logs} onClear={clearLogs} />
+        </footer>
+      )}
+
       <Toaster />
     </div>
   )

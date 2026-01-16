@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { useDevToolsContext } from "@/context/DevToolsContext"
 import { isQaModeEnabled } from "@tonconnect/ui-react"
-import { AlertTriangle, Lock, RotateCcw, Terminal, Bug } from "lucide-react"
+import { AlertTriangle, Lock, RotateCcw, Terminal, Bug, Radio } from "lucide-react"
 
 export function DevToolsTab() {
   const {
@@ -12,6 +12,8 @@ export function DevToolsTab() {
     setQaMode,
     erudaEnabled,
     setErudaEnabled,
+    rpcLogsEnabled,
+    setRpcLogsEnabled,
     lockDevTools,
     resetAll,
   } = useDevToolsContext()
@@ -32,7 +34,7 @@ export function DevToolsTab() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* QA Mode */}
         <Card>
           <CardHeader>
@@ -124,6 +126,44 @@ export function DevToolsTab() {
             </div>
           </CardContent>
         </Card>
+
+        {/* RPC Logs */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Radio className="h-5 w-5" />
+              RPC Logs
+            </CardTitle>
+            <CardDescription>
+              Capture raw SDK requests and responses
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="rpcLogs">Enable RPC Logs</Label>
+                <p className="text-xs text-muted-foreground">
+                  Intercepts console.debug from SDK
+                </p>
+              </div>
+              <Switch
+                id="rpcLogs"
+                checked={rpcLogsEnabled}
+                onCheckedChange={setRpcLogsEnabled}
+              />
+            </div>
+
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>Shows raw JSON-RPC data:</p>
+              <ul className="list-disc list-inside space-y-0.5 ml-2">
+                <li>Request payloads with id</li>
+                <li>Response payloads</li>
+                <li>Request/response timing</li>
+                <li>Error details</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Actions */}
@@ -164,6 +204,7 @@ export function DevToolsTab() {
             <ul className="list-disc list-inside ml-2">
               <li>devtools:qa-mode: {localStorage.getItem('devtools:qa-mode') ?? 'null'}</li>
               <li>devtools:eruda: {localStorage.getItem('devtools:eruda') ?? 'null'}</li>
+              <li>devtools:rpc-logs: {localStorage.getItem('devtools:rpc-logs') ?? 'null'}</li>
               <li>devtools:unlocked: {localStorage.getItem('devtools:unlocked') ?? 'null'}</li>
             </ul>
           </div>
