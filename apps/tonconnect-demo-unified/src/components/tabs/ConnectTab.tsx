@@ -6,11 +6,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useConnect } from "@/hooks/useConnect"
 import { useDevToolsContext } from "@/context/DevToolsContext"
-import { WalletResponseCard } from "@/components/shared/WalletResponseCard"
+import { ConnectedWalletCard } from "@/components/shared/ConnectedWalletCard"
+import { ConnectionEventsCard } from "@/components/shared/ConnectionEventsCard"
 import { JsonViewer } from "@/components/shared/JsonViewer"
 import {
   Plug,
-  Unplug,
   RefreshCw,
   Key,
   ShieldCheck,
@@ -292,7 +292,6 @@ export function ConnectTab() {
     isAuthenticated,
 
     events,
-    lastWalletResponse,
 
     isGeneratingPayload,
     isConnecting,
@@ -311,7 +310,6 @@ export function ConnectTab() {
     accountResult,
 
     canConnect,
-    canDisconnect,
     canConnectWithProof,
     canVerify,
     canGetAccount
@@ -319,6 +317,13 @@ export function ConnectTab() {
 
   return (
     <div className="space-y-6">
+      {/* Connected Wallet Card - TOP */}
+      <ConnectedWalletCard
+        wallet={wallet}
+        isAuthenticated={isAuthenticated}
+        onDisconnect={disconnect}
+      />
+
       {/* Two columns: 1fr / 2fr */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left: Simple Connection */}
@@ -329,33 +334,22 @@ export function ConnectTab() {
               Simple Connection
             </CardTitle>
             <CardDescription>
-              Connect or disconnect wallet without TonProof
+              Connect wallet without TonProof
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
-              <Button
-                onClick={connect}
-                disabled={!canConnect}
-                className="gap-2"
-              >
-                {isConnecting && !hasProof ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plug className="h-4 w-4" />
-                )}
-                Connect
-              </Button>
-              <Button
-                onClick={disconnect}
-                disabled={!canDisconnect}
-                variant="outline"
-                className="gap-2"
-              >
-                <Unplug className="h-4 w-4" />
-                Disconnect
-              </Button>
-            </div>
+            <Button
+              onClick={connect}
+              disabled={!canConnect}
+              className="gap-2"
+            >
+              {isConnecting && !hasProof ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plug className="h-4 w-4" />
+              )}
+              Connect
+            </Button>
           </CardContent>
         </Card>
 
@@ -599,12 +593,8 @@ export function ConnectTab() {
         </Card>
       </div>
 
-      {/* Wallet Response */}
-      <WalletResponseCard
-        wallet={wallet}
-        events={events}
-        lastWalletResponse={lastWalletResponse}
-      />
+      {/* Connection Events */}
+      <ConnectionEventsCard events={events} />
 
       {/* How It Works */}
       {!docsHidden && (
