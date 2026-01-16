@@ -2,9 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { useDevToolsContext } from "@/context/DevToolsContext"
-import { isQaModeEnabled } from "@tonconnect/ui-react"
-import { AlertTriangle, Lock, RotateCcw, Terminal, Bug, Radio } from "lucide-react"
+import { AlertTriangle, Lock, RotateCcw, Terminal, Bug, Radio, BookOpen } from "lucide-react"
 
 export function DevToolsTab() {
   const {
@@ -14,12 +14,11 @@ export function DevToolsTab() {
     setErudaEnabled,
     rpcLogsEnabled,
     setRpcLogsEnabled,
+    docsHidden,
+    setDocsHidden,
     lockDevTools,
     resetAll,
   } = useDevToolsContext()
-
-  // Get actual QA mode state from SDK (may differ from localStorage if not reloaded)
-  const actualQaMode = isQaModeEnabled()
 
   return (
     <div className="space-y-6">
@@ -34,16 +33,17 @@ export function DevToolsTab() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {/* QA Mode */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bug className="h-5 w-5" />
               QA Mode
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">SDK</Badge>
             </CardTitle>
             <CardDescription>
-              Disable validations and use staging wallets list
+              SDK development mode: disables validations and uses staging wallets list
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -59,22 +59,6 @@ export function DevToolsTab() {
                 checked={qaMode}
                 onCheckedChange={setQaMode}
               />
-            </div>
-
-            {/* Status indicator */}
-            <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">Status</p>
-              <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full ${actualQaMode ? 'bg-green-500' : 'bg-muted'}`} />
-                <span className="text-sm text-muted-foreground">
-                  {actualQaMode ? 'Active' : 'Inactive'}
-                </span>
-              </div>
-              {qaMode !== actualQaMode && (
-                <p className="text-xs text-yellow-500">
-                  Reload required to apply changes
-                </p>
-              )}
             </div>
 
             <div className="text-xs text-muted-foreground space-y-1">
@@ -164,52 +148,91 @@ export function DevToolsTab() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Documentation */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Documentation
+            </CardTitle>
+            <CardDescription>
+              Show or hide inline documentation
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="docsHidden">Hide Documentation</Label>
+                <p className="text-xs text-muted-foreground">
+                  Hides "How it works" sections
+                </p>
+              </div>
+              <Switch
+                id="docsHidden"
+                checked={docsHidden}
+                onCheckedChange={setDocsHidden}
+              />
+            </div>
+
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>When hidden:</p>
+              <ul className="list-disc list-inside space-y-0.5 ml-2">
+                <li>HowItWorks cards are hidden</li>
+                <li>Cleaner interface for demos</li>
+                <li>Field tooltips remain visible</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Actions</CardTitle>
-          <CardDescription>Manage DevTools settings</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Button
-            variant="outline"
-            onClick={lockDevTools}
-            className="gap-2"
-          >
-            <Lock className="h-4 w-4" />
-            Lock DevTools
-          </Button>
-          <Button
-            variant="outline"
-            onClick={resetAll}
-            className="gap-2 text-destructive hover:text-destructive"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reset All DevTools Settings
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Actions & Info */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Actions</CardTitle>
+            <CardDescription>Manage DevTools settings</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={lockDevTools}
+              className="gap-2"
+            >
+              <Lock className="h-4 w-4" />
+              Lock DevTools
+            </Button>
+            <Button
+              variant="outline"
+              onClick={resetAll}
+              className="gap-2 text-destructive hover:text-destructive"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset All
+            </Button>
+          </CardContent>
+        </Card>
 
-      {/* Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Information</CardTitle>
-          <CardDescription>Current DevTools state</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="font-mono text-xs space-y-1 text-muted-foreground">
-            <p>localStorage keys:</p>
-            <ul className="list-disc list-inside ml-2">
-              <li>devtools:qa-mode: {localStorage.getItem('devtools:qa-mode') ?? 'null'}</li>
-              <li>devtools:eruda: {localStorage.getItem('devtools:eruda') ?? 'null'}</li>
-              <li>devtools:rpc-logs: {localStorage.getItem('devtools:rpc-logs') ?? 'null'}</li>
-              <li>devtools:unlocked: {localStorage.getItem('devtools:unlocked') ?? 'null'}</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Information</CardTitle>
+            <CardDescription>Current DevTools state</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="font-mono text-xs space-y-1 text-muted-foreground">
+              <p>localStorage keys:</p>
+              <ul className="list-disc list-inside ml-2">
+                <li>devtools:qa-mode: {localStorage.getItem('devtools:qa-mode') ?? 'null'}</li>
+                <li>devtools:eruda: {localStorage.getItem('devtools:eruda') ?? 'null'}</li>
+                <li>devtools:rpc-logs: {localStorage.getItem('devtools:rpc-logs') ?? 'null'}</li>
+                <li>devtools:docs-hidden: {localStorage.getItem('devtools:docs-hidden') ?? 'null'}</li>
+                <li>devtools:unlocked: {localStorage.getItem('devtools:unlocked') ?? 'null'}</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
