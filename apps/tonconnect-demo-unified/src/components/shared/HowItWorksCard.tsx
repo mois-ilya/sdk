@@ -8,6 +8,12 @@ import { useDevToolsContext } from "@/context/DevToolsContext"
 
 // Feature lists for each section
 const SECTION_FEATURES: Record<string, string[]> = {
+  connect: [
+    "Simple or authenticated connection",
+    "TonProof cryptographic verification",
+    "Domain-bound ownership proof",
+    "Replay attack protection",
+  ],
   transaction: [
     "Multiple messages per transaction",
     "Custom payloads for smart contracts",

@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useConnect } from "@/hooks/useConnect"
-import { useDevToolsContext } from "@/context/DevToolsContext"
 import { ConnectedWalletCard } from "@/components/shared/ConnectedWalletCard"
 import { ConnectionEventsCard } from "@/components/shared/ConnectionEventsCard"
 import { JsonViewer } from "@/components/shared/JsonViewer"
+import { HowItWorksCard } from "@/components/shared/HowItWorksCard"
+import { FieldLabel } from "@/components/shared/FieldLabel"
 import {
   Plug,
   RefreshCw,
@@ -22,35 +22,8 @@ import {
   Copy,
   Check
 } from "lucide-react"
-import { Info } from "lucide-react" // Used in InfoModal
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
-
-// Info button with modal
-function InfoModal({ title, children }: { title: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <Info className="h-3.5 w-3.5" />
-      </button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
-          <div className="text-sm text-muted-foreground space-y-3">
-            {children}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
 
 // Inline copy button for text flow
 function InlineCopyButton({ text }: { text: string }) {
@@ -85,74 +58,6 @@ interface VerifyChecks {
   signatureValid: boolean
 }
 
-// Compact check indicator
-function CheckIndicator({ label, valid }: { label: string; valid: boolean }) {
-  return (
-    <span>
-      <span className={valid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-        {label} {valid ? '✓' : '✗'}
-      </span>
-    </span>
-  )
-}
-
-function VerificationResult({ checks, error }: { checks: VerifyChecks; error?: string }) {
-  const isValid = Object.values(checks).every(Boolean)
-
-  // Core TonProof checks (protocol-level)
-  const coreChecks = [
-    { key: 'addressMatch', label: 'Address' },
-    { key: 'publicKeyMatch', label: 'Public key' },
-    { key: 'domainAllowed', label: 'Domain' },
-    { key: 'timestampValid', label: 'Timestamp' },
-    { key: 'signatureValid', label: 'Signature' },
-    { key: 'payloadMatch', label: 'Payload' },
-  ] as const
-
-  // Implementation-specific checks (JWT)
-  const jwtChecks = [
-    { key: 'jwtValid', label: 'JWT' },
-  ] as const
-
-  return (
-    <div className="space-y-2 text-xs">
-      {/* Error message (success shown via button state) */}
-      {!isValid && (
-        <div className="font-medium text-red-600 dark:text-red-400">
-          Invalid — {error || 'Verification failed'}
-        </div>
-      )}
-
-      {/* Core checks - inline */}
-      <div className="flex flex-wrap gap-x-1.5 gap-y-0.5">
-        {coreChecks.map((check, i) => (
-          <span key={check.key}>
-            <CheckIndicator label={check.label} valid={checks[check.key]} />
-            {i < coreChecks.length - 1 && <span className="text-muted-foreground"> • </span>}
-          </span>
-        ))}
-      </div>
-
-      {/* JWT checks - collapsible */}
-      <Collapsible>
-        <CollapsibleTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronRight className="h-3 w-3 transition-transform duration-200 [[data-state=open]>&]:rotate-90" />
-          Implementation details (JWT)
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-1.5 pl-4">
-          <div className="flex gap-x-1.5">
-            {jwtChecks.map((check, i) => (
-              <span key={check.key}>
-                <CheckIndicator label={check.label} valid={checks[check.key]} />
-                {i < jwtChecks.length - 1 && <span className="text-muted-foreground"> • </span>}
-              </span>
-            ))}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
-  )
-}
 
 // Display proof data from wallet
 interface TonProof {
@@ -163,14 +68,30 @@ interface TonProof {
   state_init?: string
 }
 
-function WalletResponseDisplay({ proof }: { proof: TonProof | null }) {
+interface WalletResponseDisplayProps {
+  proof: TonProof | null
+  address: string | null
+  publicKey: string | null
+  checks: VerifyChecks | null
+  payloadToken: string | null
+}
+
+function CheckMark({ valid }: { valid: boolean }) {
+  return valid ? (
+    <span className="text-green-600 dark:text-green-400 ml-2">✓</span>
+  ) : (
+    <span className="text-red-600 dark:text-red-400 ml-2">✗</span>
+  )
+}
+
+function WalletResponseDisplay({ proof, address, publicKey, checks, payloadToken }: WalletResponseDisplayProps) {
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text)
     toast.success("Copied to clipboard")
   }
 
   return (
-    <div className="space-y-1.5 text-xs">
+    <div className="space-y-2 text-xs">
       <div className="font-medium text-muted-foreground">Wallet Response</div>
 
       <div className="space-y-1">
@@ -183,9 +104,10 @@ function WalletResponseDisplay({ proof }: { proof: TonProof | null }) {
               <span className="text-muted-foreground ml-1">
                 ({new Date(proof.timestamp * 1000).toLocaleTimeString('en-US', { hour12: false })})
               </span>
+              {checks && <CheckMark valid={checks.timestampValid} />}
             </>
           ) : (
-            <span className="text-muted-foreground">—</span>
+            <span className="text-muted-foreground">signing time (unix)</span>
           )}
         </p>
 
@@ -193,44 +115,121 @@ function WalletResponseDisplay({ proof }: { proof: TonProof | null }) {
         <p>
           <span className="font-semibold w-20 inline-block">domain</span>
           {proof ? (
-            <span className="font-mono">{proof.domain.value}</span>
+            <>
+              <span className="font-mono">{proof.domain.value}</span>
+              {checks && <CheckMark valid={checks.domainAllowed} />}
+            </>
           ) : (
-            <span className="text-muted-foreground">—</span>
+            <span className="text-muted-foreground">requesting domain</span>
           )}
         </p>
 
-        {/* payload — click to copy */}
+        {/* payload */}
         <p>
           <span className="font-semibold w-20 inline-block align-top">payload</span>
           {proof ? (
-            <code
-              onClick={() => copyToClipboard(proof.payload)}
-              className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
-              title="Click to copy"
-            >
-              {proof.payload}
-            </code>
+            <>
+              <code
+                onClick={() => copyToClipboard(proof.payload)}
+                className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
+                title="Click to copy"
+              >
+                {proof.payload}
+              </code>
+              {checks && <CheckMark valid={checks.payloadMatch} />}
+            </>
           ) : (
-            <span className="text-muted-foreground">—</span>
+            <span className="text-muted-foreground">your challenge</span>
           )}
         </p>
 
-        {/* signature — click to copy */}
+        {/* signature */}
         <p>
           <span className="font-semibold w-20 inline-block align-top">signature</span>
           {proof ? (
-            <code
-              onClick={() => copyToClipboard(proof.signature)}
-              className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
-              title="Click to copy"
-            >
-              {proof.signature}
-            </code>
+            <>
+              <code
+                onClick={() => copyToClipboard(proof.signature)}
+                className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
+                title="Click to copy"
+              >
+                {proof.signature}
+              </code>
+              {checks && <CheckMark valid={checks.signatureValid} />}
+            </>
           ) : (
-            <span className="text-muted-foreground">—</span>
+            <span className="text-muted-foreground">Ed25519 signature</span>
           )}
         </p>
       </div>
+
+      {/* Account data (from wallet.account) */}
+      <div className="space-y-1 mt-2">
+        {/* address */}
+        <p>
+          <span className="font-semibold w-20 inline-block align-top">address</span>
+          {address ? (
+            <>
+              <code
+                onClick={() => copyToClipboard(address)}
+                className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
+                title="Click to copy"
+              >
+                {address}
+              </code>
+              {checks && <CheckMark valid={checks.addressMatch} />}
+            </>
+          ) : (
+            <span className="text-muted-foreground">wallet address</span>
+          )}
+        </p>
+
+        {/* public key */}
+        <p>
+          <span className="font-semibold w-20 inline-block align-top">public key</span>
+          {publicKey ? (
+            <>
+              <code
+                onClick={() => copyToClipboard(publicKey)}
+                className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
+                title="Click to copy"
+              >
+                {publicKey}
+              </code>
+              {checks && <CheckMark valid={checks.publicKeyMatch} />}
+            </>
+          ) : (
+            <span className="text-muted-foreground">Ed25519 public key</span>
+          )}
+        </p>
+      </div>
+
+      {/* Implementation details */}
+      <Collapsible>
+        <CollapsibleTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+          <ChevronRight className="h-3 w-3 transition-transform duration-200 [[data-state=open]>&]:rotate-90" />
+          Implementation details
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-1.5 pl-4">
+          <p>
+            <span className="font-semibold w-20 inline-block align-top">JWT</span>
+            {payloadToken ? (
+              <>
+                <code
+                  onClick={() => copyToClipboard(payloadToken)}
+                  className="font-mono bg-primary/10 py-0.5 rounded break-all cursor-pointer hover:bg-primary/20 transition-colors [box-decoration-break:clone] [-webkit-box-decoration-break:clone]"
+                  title="Click to copy"
+                >
+                  {payloadToken}
+                </code>
+                {checks && <CheckMark valid={checks.jwtValid} />}
+              </>
+            ) : (
+              <span className="text-muted-foreground">stateless auth token</span>
+            )}
+          </p>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }
@@ -258,19 +257,9 @@ function PayloadDisplay({ response }: { response: Record<string, unknown> }) {
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2">
           <div className="space-y-2 pl-4 border-l-2 border-muted">
-            <div className="flex items-center gap-1.5">
+            <FieldLabel fieldId="payloadToken">
               <code className="text-xs font-semibold">payloadToken</code>
-              <InfoModal title="Payload Token (JWT)">
-                <p>
-                  A JWT containing random bytes, created by your backend.
-                  Stored client-side and sent back during verification.
-                </p>
-                <p>
-                  The backend verifies the JWT signature to ensure it wasn't tampered with,
-                  then checks that SHA256(payloadToken) matches what the wallet signed.
-                </p>
-              </InfoModal>
-            </div>
+            </FieldLabel>
             <div className="bg-muted/30 rounded-md p-2 font-mono text-[10px] break-all max-h-16 overflow-auto">
               {payloadToken}
             </div>
@@ -285,7 +274,6 @@ function PayloadDisplay({ response }: { response: Record<string, unknown> }) {
 }
 
 export function ConnectTab() {
-  const { docsHidden } = useDevToolsContext()
   const {
     wallet,
     hasProof,
@@ -373,17 +361,9 @@ export function ConnectTab() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5">
-                    <h4 className="font-medium text-sm">Backend Challenge</h4>
-                    <InfoModal title="Backend Challenge">
-                      <p>
-                        Your backend generates a unique challenge (random data) for the wallet to sign.
-                        This proves the user controls the wallet's private key.
-                      </p>
-                      <p>
-                        The challenge is a SHA256 hash sent to the wallet. In this demo, it's derived from
-                        a JWT token which allows stateless verification.
-                      </p>
-                    </InfoModal>
+                    <FieldLabel fieldId="backendChallenge">
+                      <span className="font-medium text-sm">Backend Challenge</span>
+                    </FieldLabel>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -438,17 +418,9 @@ export function ConnectTab() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5">
-                    <h4 className="font-medium text-sm">Connect with Proof</h4>
-                    <InfoModal title="Connect with Proof">
-                      <p>
-                        Opens the wallet with a TonProof request. The wallet signs the challenge
-                        from Step 1 to prove ownership of the address.
-                      </p>
-                      <p>
-                        The response contains timestamp, domain, payload (the signed challenge),
-                        and signature for backend verification.
-                      </p>
-                    </InfoModal>
+                    <FieldLabel fieldId="connectWithProof">
+                      <span className="font-medium text-sm">Connect with Proof</span>
+                    </FieldLabel>
                     <Button
                       size="sm"
                       variant={hasProof ? "outline" : "default"}
@@ -467,14 +439,6 @@ export function ConnectTab() {
                   <p className="text-xs text-muted-foreground">Opens wallet with TonProof request</p>
                 </div>
               </div>
-
-              <div className="pl-9">
-                <WalletResponseDisplay
-                  proof={hasProof && wallet?.connectItems?.tonProof && !('error' in wallet.connectItems.tonProof)
-                    ? wallet.connectItems.tonProof.proof as TonProof
-                    : null}
-                />
-              </div>
             </div>
 
             {/* Step 3: Verify Proof */}
@@ -485,17 +449,9 @@ export function ConnectTab() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5">
-                    <h4 className="font-medium text-sm">Verify Proof</h4>
-                    <InfoModal title="Verify Proof">
-                      <p>
-                        Backend performs cryptographic verification of the wallet's signature.
-                        All checks must pass for successful authentication.
-                      </p>
-                      <p>
-                        This demo uses JWT for stateless verification — the payloadToken
-                        ties the signature to this specific session.
-                      </p>
-                    </InfoModal>
+                    <FieldLabel fieldId="verifyProof">
+                      <span className="font-medium text-sm">Verify Proof</span>
+                    </FieldLabel>
                     <Button
                       size="sm"
                       variant={isAuthenticated ? "outline" : "default"}
@@ -520,16 +476,19 @@ export function ConnectTab() {
                 </div>
               </div>
 
-              {/* Result - only shown after verification */}
-              {verifyResult && (verifyResult.response as { checks?: VerifyChecks } | undefined)?.checks && (
-                <div className="pl-9">
-                  <VerificationResult
-                    checks={(verifyResult.response as { checks: VerifyChecks }).checks}
-                    error={verifyResult.error}
-                  />
-                </div>
-              )}
             </div>
+
+            {/* Wallet Response */}
+            <hr className="border-border" />
+            <WalletResponseDisplay
+              proof={hasProof && wallet?.connectItems?.tonProof && !('error' in wallet.connectItems.tonProof)
+                ? wallet.connectItems.tonProof.proof as TonProof
+                : null}
+              address={wallet?.account?.address ?? null}
+              publicKey={wallet?.account?.publicKey ?? null}
+              checks={(verifyResult?.response as { checks?: VerifyChecks } | undefined)?.checks ?? null}
+              payloadToken={(payloadResult?.response as { payloadToken?: string } | undefined)?.payloadToken ?? null}
+            />
 
             {/* Example: Using Auth Token (collapsible, only after verification) */}
             {isAuthenticated && (
@@ -597,38 +556,7 @@ export function ConnectTab() {
       <ConnectionEventsCard events={events} />
 
       {/* How It Works */}
-      {!docsHidden && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">How It Works</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <h4 className="font-medium text-foreground mb-2">Simple Connection</h4>
-                <p>Opens the wallet modal. User selects a wallet and approves.
-                   No proof is requested - you only get the wallet address.</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-2">TonProof Connection</h4>
-                <p>First generates a challenge on your server. During connection,
-                   wallet signs this challenge proving ownership. Proof can only
-                   be requested at connection time, not after.</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-2">Verification</h4>
-                <p>Backend verifies the Ed25519 signature, validates the challenge matches,
-                   and checks the address. Returns an authentication token on success.</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-2">After Authentication</h4>
-                <p>The auth token can be used for protected API calls.
-                   Token format (JWT, session, etc.) depends on your backend implementation.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <HowItWorksCard sectionId="connect" />
     </div>
   )
 }
