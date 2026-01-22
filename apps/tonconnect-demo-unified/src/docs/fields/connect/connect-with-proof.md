@@ -7,42 +7,23 @@ links:
     url: https://github.com/ton-blockchain/ton-connect/blob/main/requests-responses.md
 ---
 
-## Purpose
+## What happens
 
-Opens wallet connection modal with TonProof request attached.
-Wallet will sign the challenge from Step 1.
+Wallet modal opens with connection + signature request. User approves → wallet signs the challenge from Step 1.
 
-## Request sent to wallet
+## Key constraint
 
-```json
-{
-  "items": [
-    { "name": "ton_addr" },
-    { "name": "ton_proof", "payload": "<challenge_hash>" }
-  ]
-}
-```
+**Proof can only be requested at connection time.**
 
-## Response from wallet
+Already connected? Disconnect first, then reconnect with proof. Cannot add proof to existing connection.
 
-```json
-{
-  "account": { "address": "...", "publicKey": "..." },
-  "connectItems": {
-    "tonProof": {
-      "proof": {
-        "timestamp": 1234567890,
-        "domain": { "value": "example.com" },
-        "payload": "<original_challenge>",
-        "signature": "<base64_ed25519_sig>"
-      }
-    }
-  }
-}
-```
+## What you receive
 
-## Important
-
-- Proof can ONLY be requested at connection time
-- Cannot request proof after already connected
-- If wallet doesn't support TonProof → error code 400
+| Field | Description |
+|-------|-------------|
+| `account.address` | Wallet address (raw format) |
+| `account.publicKey` | Ed25519 public key |
+| `tonProof.proof.timestamp` | When signature was created |
+| `tonProof.proof.domain` | Domain that requested proof |
+| `tonProof.proof.payload` | Your original challenge |
+| `tonProof.proof.signature` | Base64 Ed25519 signature |

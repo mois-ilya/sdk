@@ -7,35 +7,22 @@ links:
     url: https://docs.ton.org/v3/guidelines/ton-connect/guidelines/ton-proof#how-to-check-ton-proof-on-server-side
 ---
 
-## Purpose
+## What happens
 
-Backend verifies the Ed25519 signature to confirm wallet ownership.
-All 6 checks must pass.
+Frontend sends proof from Step 2 to your backend. Backend verifies the Ed25519 signature and all supporting data.
 
-## Verification checks
+## What to verify
 
-| # | Check | What it verifies |
-|---|-------|------------------|
-| 1 | Public key | Matches wallet's StateInit |
-| 2 | Address | Hash of StateInit matches address |
-| 3 | Domain | In allowed domains list |
-| 4 | Timestamp | Within 15 minute window |
-| 5 | Payload | Matches original challenge |
-| 6 | Signature | Valid Ed25519 signature |
+All must pass: public key matches StateInit, address is correct hash, domain is whitelisted, timestamp is fresh (15 min), payload matches your challenge, signature is valid.
 
-## Signature verification
+## Signature formula
 
 ```
+message = "ton-proof-item-v2/" || address || domain || timestamp || payload
 fullMessage = 0xffff || "ton-connect" || sha256(message)
 valid = ed25519.verify(signature, sha256(fullMessage), publicKey)
 ```
 
 ## On success
 
-Backend issues auth token (JWT, session, etc.) for subsequent API calls.
-
-## On failure
-
-- Do not reveal which check failed (security)
-- Return generic "verification failed" error
-- Log details server-side for debugging
+Issue auth token (JWT, session, cookie) for subsequent API calls. User is now authenticated.
