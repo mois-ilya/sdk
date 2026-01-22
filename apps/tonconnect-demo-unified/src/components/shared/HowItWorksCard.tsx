@@ -130,7 +130,7 @@ export function HowItWorksCard({ sectionId }: HowItWorksCardProps) {
             prose-ol:my-2 prose-ol:text-muted-foreground prose-ol:space-y-1
             prose-li:my-0
             prose-code:text-xs prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
-            prose-pre:bg-muted prose-pre:text-xs prose-pre:p-3 prose-pre:my-3
+            prose-pre:bg-muted prose-pre:text-foreground prose-pre:text-xs prose-pre:p-3 prose-pre:my-3
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
           >
             <ReactMarkdown
