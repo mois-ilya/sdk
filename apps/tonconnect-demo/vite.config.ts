@@ -7,8 +7,8 @@ import fs from 'fs';
 /**
  * Generates tonconnect-manifest.json at build time.
  *
- * Set VITE_APP_URL environment variable to your domain:
- *   VITE_APP_URL=https://your-domain.com pnpm build
+ * Environment variables:
+ *   VITE_APP_URL - Full URL (e.g., https://user.github.io/repo/)
  *
  * For local development, defaults to http://localhost:5173
  */
@@ -16,7 +16,7 @@ function generateManifest(): Plugin {
     return {
         name: 'generate-tonconnect-manifest',
         writeBundle(options) {
-            const appUrl = process.env.VITE_APP_URL || 'http://localhost:5173';
+            const appUrl = (process.env.VITE_APP_URL || 'http://localhost:5173').replace(/\/$/, '');
             const outDir = options.dir || 'dist';
 
             const manifest = {
@@ -39,6 +39,8 @@ function generateManifest(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    // Base path for GitHub Pages deployment (e.g., /repo/ or /repo/branch/)
+    base: process.env.VITE_BASE_PATH || '/',
     plugins: [react(), tailwindcss(), generateManifest()],
     resolve: {
         alias: {
